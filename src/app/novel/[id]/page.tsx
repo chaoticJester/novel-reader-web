@@ -47,7 +47,7 @@ export default async function NovelDetailPage({ params }: { params: { id: string
                 <div className="flex-1 flex flex-col justify-center h-full min-h-[250px] text-center md:text-left">
                     <h1 className="text-3xl md:text-4xl font-bold mb-4">{novel.title}</h1>
                     <p className="text-gray-500 text-lg">
-                        ผู้แต่ง: <span className="text-gray-700 font-medium">{novel.author_name || 'ไม่ระบุ'}</span>
+                        ผู้แต่ง: <span className="text-gray-500 font-medium">{novel.author_name || 'ไม่ระบุ'}</span>
                     </p>
                 </div>
 
