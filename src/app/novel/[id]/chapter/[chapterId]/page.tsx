@@ -42,7 +42,7 @@ export default async function ChapterReadingPage({
     const nextChapter = nextChapters?.[0]
 
     return (
-        <main className="container mx-auto p-4 md:p-8 max-w-3xl">
+        <main className="container mx-auto p-4 md:p-8 max-w-3xl min-h-screen transition-colors">
             <div className="mb-8">
                 <Link
                     href={`/novel/${id}`}
@@ -62,7 +62,7 @@ export default async function ChapterReadingPage({
             </div>
 
             {/* เนื้อหานิยาย */}
-            <div className="text-white text-lg leading-loose whitespace-pre-wrap min-h-[40vh]">
+            <div className="text-black dark:text-white text-lg leading-loose whitespace-pre-wrap min-h-[40vh]">
                 {chapter.content}
             </div>
 
