@@ -1,6 +1,5 @@
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
-import Image from 'next/image'
 
 export default async function NovelDetailPage({ params }: { params: { id: string } }) {
     // ดึง ID ของนิยายจาก URL
@@ -30,22 +29,37 @@ export default async function NovelDetailPage({ params }: { params: { id: string
                 &larr; กลับหน้าหลัก
             </Link>
 
-            <div className="flex flex-col md:flex-row gap-8 mb-12">
+            {/* ส่วนบน: รูปหน้าปก (ซ้าย) และ ชื่อเรื่อง/ผู้แต่ง (ขวา จัดกึ่งกลาง) */}
+            <div className="flex flex-col md:flex-row gap-8 mb-8 items-center md:items-start">
+                
                 {/* รูปปกนิยาย */}
-                <div className="w-full md:w-1/3 aspect-3/4 bg-slate-200 rounded-lg shrink-0">
+                <div className="w-full md:w-1/3 lg:w-1/4 aspect-[3/4] bg-slate-200 rounded-lg shrink-0">
                     {novel.cover_image_url && (
-                        <Image src={novel.cover_image_url} alt={novel.title} className="w-full h-full object-cover rounded-lg" />
+                        <img 
+                            src={novel.cover_image_url} 
+                            alt={novel.title} 
+                            className="w-full h-full object-cover rounded-lg shadow-md" 
+                        />
                     )}
                 </div>
 
-                {/* รายละเอียด */}
-                <div className="flex-1">
-                    <h1 className="text-3xl font-bold mb-2">{novel.title}</h1>
-                    <p className="text-gray-400 mb-4">ผู้แต่ง: {novel.author_name || 'ไม่ระบุ'}</p>
-                    <div className="bg-slate-50 p-4 rounded-lg">
-                        <h3 className="text-black font-semibold mb-2">เรื่องย่อ</h3>
-                        <p className="text-gray-700 whitespace-pre-wrap">{novel.description || 'ยังไม่มีเรื่องย่อ'}</p>
-                    </div>
+                {/* ชื่อเรื่อง และ ผู้แต่ง (จัดกึ่งกลางในแนวตั้งสำหรับจอคอมพิวเตอร์) */}
+                <div className="flex-1 flex flex-col justify-center h-full min-h-[250px] text-center md:text-left">
+                    <h1 className="text-3xl md:text-4xl font-bold mb-4">{novel.title}</h1>
+                    <p className="text-gray-500 text-lg">
+                        ผู้แต่ง: <span className="text-gray-700 font-medium">{novel.author_name || 'ไม่ระบุ'}</span>
+                    </p>
+                </div>
+
+            </div>
+
+            {/* ส่วนล่าง: เรื่องย่อ (แสดงเต็มความกว้าง) */}
+            <div className="mb-12">
+                <div className="bg-slate-50 p-6 rounded-xl border border-slate-100 shadow-sm">
+                    <h3 className="text-black text-xl font-semibold mb-4 border-b pb-2">เรื่องย่อ</h3>
+                    <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
+                        {novel.description || 'ยังไม่มีเรื่องย่อ'}
+                    </p>
                 </div>
             </div>
 

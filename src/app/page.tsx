@@ -1,6 +1,5 @@
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
-import Image from 'next/image'
 
 export default async function Home() {
     // ดึงข้อมูลนิยายจากตาราง novels เรียงจากใหม่ไปเก่า
@@ -25,7 +24,7 @@ export default async function Home() {
                         {/* พื้นที่สำหรับใส่หน้าปก (ตอนนี้ใส่สีเทาไว้เป็น Placeholder ก่อน) */}
                         <div className="aspect-3/4 bg-slate-200 rounded-lg mb-3 shadow-sm group-hover:shadow-md transition-shadow">
                             {novel.cover_image_url && (
-                                <Image
+                                <img
                                     src={novel.cover_image_url}
                                     alt={novel.title}
                                     className="w-full h-full object-cover rounded-lg"
