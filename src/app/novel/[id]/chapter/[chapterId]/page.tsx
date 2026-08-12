@@ -1,5 +1,12 @@
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
+import {Noto_Serif_Thai} from 'next/font/google'
+
+const notoSerifThai = Noto_Serif_Thai({ 
+  subsets: ['thai'],
+  weight: ['400', '500'], 
+  display: 'swap',
+})
 
 export default async function ChapterReadingPage({
     params
@@ -62,7 +69,7 @@ export default async function ChapterReadingPage({
             </div>
 
             {/* เนื้อหานิยาย */}
-            <div className="text-black dark:text-white text-lg leading-loose whitespace-pre-wrap min-h-[40vh]">
+            <div className={`${notoSerifThai.className} text-black dark:text-white text-lg leading-loose whitespace-pre-wrap min-h-[40vh]`}>
                 {chapter.content}
             </div>
 
