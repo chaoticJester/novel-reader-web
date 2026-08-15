@@ -10,11 +10,11 @@ interface ContentReaderProps {
 
 export default function ContentReader({ content, fontClassName }: ContentReaderProps) {
   // สร้าง State สำหรับเก็บขนาดฟอนต์ (ตั้งค่าเริ่มต้นที่ 18px)
-  const [fontSize, setFontSize] = useState(18)
+  const [fontSize, setFontSize] = useState(20)
 
   // ฟังก์ชันเพิ่ม-ลดขนาดฟอนต์ (จำกัดไม่ให้เล็กกว่า 12px และใหญ่กว่า 32px)
   const decreaseFont = () => setFontSize(prev => (prev > 12 ? prev - 2 : prev))
-  const resetFont = () => setFontSize(18)
+  const resetFont = () => setFontSize(20)
   const increaseFont = () => setFontSize(prev => (prev < 32 ? prev + 2 : prev))
 
   return (
