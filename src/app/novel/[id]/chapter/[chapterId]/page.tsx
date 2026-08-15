@@ -2,6 +2,7 @@ import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import {Noto_Serif_Thai} from 'next/font/google'
 import ReactMarkdown from 'react-markdown'
+import ContentReader from '@/components/ContentReader' 
 
 const notoSerifThai = Noto_Serif_Thai({ 
   subsets: ['thai'],
@@ -70,12 +71,11 @@ export default async function ChapterReadingPage({
             </div>
 
             {/* เนื้อหานิยาย */}
-            <div className={`${notoSerifThai.className} text-black dark:text-white text-lg leading-loose whitespace-pre-wrap min-h-[40vh]`}>
-                <ReactMarkdown>
-                    {chapter.content}
-                </ReactMarkdown>
-            </div>
-
+            <ContentReader
+                content={chapter.content}
+                fontClassName={notoSerifThai.className}
+            />
+            
             {/* ปุ่มนำทาง (Navigation) */}
             <div className="mt-16 pt-8 border-t flex flex-col sm:flex-row justify-between items-center gap-4">
 
