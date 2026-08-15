@@ -15,7 +15,7 @@ export default async function Home() {
 
     return (
         <main className="container mx-auto p-8">
-            <h1 className="text-3xl font-bold mb-8">นิยายอัปเดตล่าสุด</h1>
+            <h1 className="text-3xl font-bold mb-8">นิยายแปลอัปเดตล่าสุด</h1>
 
             {/* ใช้ CSS Grid ของ Tailwind จัดเรียงเป็นการ์ด */}
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
