@@ -1,8 +1,8 @@
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import {Noto_Serif_Thai} from 'next/font/google'
-import ReactMarkdown from 'react-markdown'
 import ContentReader from '@/components/ContentReader' 
+import TableOfContentsShelf from '@/components/TableOfContentsShelf' 
 
 const notoSerifThai = Noto_Serif_Thai({ 
   subsets: ['thai'],
@@ -28,27 +28,19 @@ export default async function ChapterReadingPage({
         return <div className="p-8 text-center text-red-500">ไม่พบเนื้อหาตอนนี้ หรือเกิดข้อผิดพลาด</div>
     }
 
-    // 2. ค้นหา "ตอนก่อนหน้า" (.lt คือ less than หาตอนที่ลำดับน้อยกว่าปัจจุบัน)
-    const { data: prevChapters } = await supabase
-        .from('chapters')
-        .select('id')
-        .eq('novel_id', id)
-        .lt('chapter_number', chapter.chapter_number)
-        .order('chapter_number', { ascending: false })
-        .limit(1)
+    // 2. ดึงข้อมูล (ก่อนหน้า, ถัดไป, และ **รายชื่อตอนทั้งหมด**)
+    const [prevRes, nextRes, allChaptersRes] = await Promise.all([
+        // ก่อนหน้า
+        supabase.from('chapters').select('id').eq('novel_id', id).lt('chapter_number', chapter.chapter_number).order('chapter_number', { ascending: false }).limit(1),
+        // ถัดไป
+        supabase.from('chapters').select('id').eq('novel_id', id).gt('chapter_number', chapter.chapter_number).order('chapter_number', { ascending: true }).limit(1),
+        // รายชื่อตอนทั้งหมดของเรื่องนี้ (ดึงแค่ข้อมูลที่จำเป็นเพื่อความรวดเร็ว)
+        supabase.from('chapters').select('id, title, chapter_number').eq('novel_id', id).order('chapter_number', { ascending: true })
+    ])
 
-    // 3. ค้นหา "ตอนถัดไป" (.gt คือ greater than หาตอนที่ลำดับมากกว่าปัจจุบัน)
-    const { data: nextChapters } = await supabase
-        .from('chapters')
-        .select('id')
-        .eq('novel_id', id)
-        .gt('chapter_number', chapter.chapter_number)
-        .order('chapter_number', { ascending: true })
-        .limit(1)
-
-    // ดึงข้อมูลตัวแรกออกมา (ถ้าไม่มีจะเป็น undefined)
-    const prevChapter = prevChapters?.[0]
-    const nextChapter = nextChapters?.[0]
+    const prevChapter = prevRes.data?.[0]
+    const nextChapter = nextRes.data?.[0]
+    const allChapters = allChaptersRes.data || [] // เก็บรายชื่อตอนทั้งหมด
 
     return (
         <main className="container mx-auto p-4 md:p-8 max-w-3xl min-h-screen transition-colors">
@@ -92,12 +84,11 @@ export default async function ChapterReadingPage({
                 )}
 
                 {/* ปุ่มกลับสารบัญ */}
-                <Link
-                    href={`/novel/${id}`}
-                    className="text-gray-500 hover:text-blue-500"
-                >
-                    &equiv; สารบัญ
-                </Link>
+                <TableOfContentsShelf 
+                    novelId={id} 
+                    chapters={allChapters} 
+                    currentChapterId={chapterId} 
+                />
 
                 {/* ปุ่มตอนถัดไป */}
                 {nextChapter ? (
