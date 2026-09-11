@@ -3,12 +3,28 @@ import Link from 'next/link'
 import {Noto_Serif_Thai} from 'next/font/google'
 import ContentReader from '@/components/ContentReader' 
 import TableOfContentsShelf from '@/components/TableOfContentsShelf' 
+import { unstable_cache } from 'next/cache'
 
 const notoSerifThai = Noto_Serif_Thai({ 
   subsets: ['thai'],
   weight: ['400', '500'], 
   display: 'swap',
 })
+
+export const dynamicParams = true // path ที่ยังไม่ pre-render ไว้ ให้ generate ตอน request แรกได้ (ISR-style)
+export const revalidate = false   // ไม่ตั้งเวลา หมดอายุเอง จะ cache ค้างไว้จนกว่าจะสั่ง revalidate เอง
+
+export async function generateStaticParams() {
+    const { data: chapters } = await supabase
+        .from('chapters')
+        .select('id, novel_id')
+        .limit(500) // จำกัดจำนวน build ล่วงหน้า ตอนที่เหลือ generate on-demand ตอน dynamicParams=true
+
+    return (chapters || []).map((c) => ({
+        id: c.novel_id,
+        chapterId: c.id,
+    }))
+}
 
 export default async function ChapterReadingPage({
     params
@@ -18,29 +34,45 @@ export default async function ChapterReadingPage({
     const { id, chapterId } = await params
 
     // 1. ดึงข้อมูลเนื้อหาตอนปัจจุบัน
-    const { data: chapter, error } = await supabase
-        .from('chapters')
-        .select(`*, novels(title)`)
-        .eq('id', chapterId)
-        .single()
+    const getChapter = (chapterId: string) =>
+        unstable_cache(
+            async () => {
+                const { data, error } = await supabase
+                    .from('chapters')
+                    .select(`*, novels(title)`)
+                    .eq('id', chapterId)
+                    .single()
+                return { data, error }
+            },
+            ['chapter', chapterId],
+            { tags: [`chapter-${chapterId}`], revalidate: false }
+    )()
+
+    const { data: chapter, error } = await getChapter(chapterId)
 
     if (error || !chapter) {
         return <div className="p-8 text-center text-red-500">ไม่พบเนื้อหาตอนนี้ หรือเกิดข้อผิดพลาด</div>
     }
 
     // 2. ดึงข้อมูล (ก่อนหน้า, ถัดไป, และ **รายชื่อตอนทั้งหมด**)
-    const [prevRes, nextRes, allChaptersRes] = await Promise.all([
-        // ก่อนหน้า
-        supabase.from('chapters').select('id').eq('novel_id', id).lt('chapter_number', chapter.chapter_number).order('chapter_number', { ascending: false }).limit(1),
-        // ถัดไป
-        supabase.from('chapters').select('id').eq('novel_id', id).gt('chapter_number', chapter.chapter_number).order('chapter_number', { ascending: true }).limit(1),
-        // รายชื่อตอนทั้งหมดของเรื่องนี้ (ดึงแค่ข้อมูลที่จำเป็นเพื่อความรวดเร็ว)
-        supabase.from('chapters').select('id, title, chapter_number').eq('novel_id', id).order('chapter_number', { ascending: true })
-    ])
+    const getChapterNav = (novelId: string, chapterNumber: number) =>
+        unstable_cache(
+            async () => {
+                const [prevRes, nextRes, allChaptersRes] = await Promise.all([
+                    supabase.from('chapters').select('id').eq('novel_id', novelId).lt('chapter_number', chapterNumber).order('chapter_number', { ascending: false }).limit(1),
+                    supabase.from('chapters').select('id').eq('novel_id', novelId).gt('chapter_number', chapterNumber).order('chapter_number', { ascending: true }).limit(1),
+                    supabase.from('chapters').select('id, title, chapter_number').eq('novel_id', novelId).order('chapter_number', { ascending: true }),
+                ])
+                return { prevRes, nextRes, allChaptersRes }
+            },
+            ['chapter-nav', novelId, String(chapterNumber)],
+            { tags: [`novel-${novelId}-toc`], revalidate: false }
+    )()
 
+    const { prevRes, nextRes, allChaptersRes } = await getChapterNav(id, chapter.chapter_number)
     const prevChapter = prevRes.data?.[0]
     const nextChapter = nextRes.data?.[0]
-    const allChapters = allChaptersRes.data || [] // เก็บรายชื่อตอนทั้งหมด
+    const allChapters = allChaptersRes.data || []
 
     return (
         <main className="container mx-auto p-4 md:p-8 max-w-3xl min-h-screen transition-colors">
