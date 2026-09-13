@@ -7,10 +7,18 @@ export async function POST(req: Request) {
         return new Response('Unauthorized', { status: 401 })
     }
 
-    const { id, novel_id } = await req.json()
+    const payload = await req.json()
+    // รองรับทั้ง webhook (record/old_record) และ body ตรงๆ
+    // INSERT/UPDATE ใช้ record, DELETE ใช้ old_record
+    const record = payload.record ?? payload.old_record ?? payload
+    const { id, novel_id } = record
 
-    revalidateTag(`chapter-${id}`, 'max')        // เนื้อหาตอนที่แก้ไข
-    revalidateTag(`novel-${novel_id}-toc`, 'max') // สารบัญของเรื่องนี้ (กรณีมีตอนใหม่/ลบตอน)
+    if (!id || !novel_id) {
+        return Response.json({ revalidated: false, error: 'missing id/novel_id', payload }, { status: 400 })
+    }
 
-    return Response.json({ revalidated: true })
+    // { expire: 0 } = หมดอายุทันที (profile 'max' จะไม่ purge เพราะถือว่า fresh ตลอด)
+    revalidateTag(`chapter-${id}`, { expire: 0 })        // เนื้อหาตอนที่แก้ไข
+    revalidateTag(`novel-${novel_id}-toc`, { expire: 0 }) // สารบัญ + ปุ่มตอนก่อนหน้า/ถัดไป (ตอนใหม่/ลบตอน)
+    return Response.json({ revalidated: true, id, novel_id })
 }

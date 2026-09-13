@@ -1,12 +1,21 @@
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
+import { cacheTag, cacheLife } from 'next/cache'
 
-export default async function Home() {
-    // ดึงข้อมูลนิยายจากตาราง novels เรียงจากใหม่ไปเก่า
-    const { data: novels, error } = await supabase
+async function getNovels() {
+    'use cache'
+    cacheTag('novels-list')
+    cacheLife('max')
+
+    return await supabase
         .from('novels')
         .select('*')
         .order('created_at', { ascending: false })
+}
+
+export default async function Home() {
+    // ดึงข้อมูลนิยายจากตาราง novels เรียงจากใหม่ไปเก่า
+    const { data: novels, error } = await getNovels()
 
     if (error) {
         console.error('Error fetching novels:', error)

@@ -1,23 +1,49 @@
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
+import { cacheTag, cacheLife } from 'next/cache'
 
-export default async function NovelDetailPage({ params }: { params: { id: string } }) {
-    // ดึง ID ของนิยายจาก URL
-    const { id } = await params
+async function getNovel(id: string) {
+    'use cache'
+    cacheTag(`novel-${id}`)
+    cacheLife('max')
 
-    // 1. ดึงข้อมูลรายละเอียดนิยายเรื่องนี้
-    const { data: novel, error: novelError } = await supabase
+    return await supabase
         .from('novels')
         .select('*')
         .eq('id', id)
         .single() // .single() คือบอกว่าเอาแค่ Record เดียว (เพราะ ID ไม่ซ้ำกันอยู่แล้ว)
+}
 
-    // 2. ดึงรายชื่อตอนทั้งหมดของนิยายเรื่องนี้ (เรียงจากตอนที่น้อยไปมาก)
-    const { data: chapters, error: chaptersError } = await supabase
+async function getNovelChapters(id: string) {
+    'use cache'
+    cacheTag(`novel-${id}-toc`) // ใช้ tag เดียวกับหน้าอ่านตอน จะได้ purge พร้อมกันตอนมีตอนใหม่/ลบตอน
+    cacheLife('max')
+
+    return await supabase
         .from('chapters')
         .select('id, title, chapter_number, created_at')
         .eq('novel_id', id)
         .order('chapter_number', { ascending: true })
+}
+
+export async function generateStaticParams() {
+    const { data: novels } = await supabase
+        .from('novels')
+        .select('id')
+        .limit(500)
+
+    return (novels || []).map((n) => ({ id: n.id }))
+}
+
+export default async function NovelDetailPage({ params }: { params: Promise<{ id: string }> }) {
+    // ดึง ID ของนิยายจาก URL
+    const { id } = await params
+
+    // 1. ดึงข้อมูลรายละเอียดนิยายเรื่องนี้
+    const { data: novel, error: novelError } = await getNovel(id)
+
+    // 2. ดึงรายชื่อตอนทั้งหมดของนิยายเรื่องนี้ (เรียงจากตอนที่น้อยไปมาก)
+    const { data: chapters } = await getNovelChapters(id)
 
     if (novelError) {
         return <div className="p-8 text-center text-red-500">ไม่พบข้อมูลนิยาย หรือเกิดข้อผิดพลาด</div>

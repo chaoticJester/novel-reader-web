@@ -3,7 +3,7 @@ import Link from 'next/link'
 import {Noto_Serif_Thai} from 'next/font/google'
 import ContentReader from '@/components/ContentReader' 
 import TableOfContentsShelf from '@/components/TableOfContentsShelf' 
-import { unstable_cache } from 'next/cache'
+import { cacheTag, cacheLife } from 'next/cache'
 
 const notoSerifThai = Noto_Serif_Thai({ 
   subsets: ['thai'],
@@ -11,8 +11,6 @@ const notoSerifThai = Noto_Serif_Thai({
   display: 'swap',
 })
 
-export const dynamicParams = true // path ที่ยังไม่ pre-render ไว้ ให้ generate ตอน request แรกได้ (ISR-style)
-export const revalidate = false   // ไม่ตั้งเวลา หมดอายุเอง จะ cache ค้างไว้จนกว่าจะสั่ง revalidate เอง
 
 export async function generateStaticParams() {
     const { data: chapters } = await supabase
@@ -34,20 +32,18 @@ export default async function ChapterReadingPage({
     const { id, chapterId } = await params
 
     // 1. ดึงข้อมูลเนื้อหาตอนปัจจุบัน
-    const getChapter = (chapterId: string) =>
-        unstable_cache(
-            async () => {
-                const { data, error } = await supabase
-                    .from('chapters')
-                    .select(`*, novels(title)`)
-                    .eq('id', chapterId)
-                    .single()
-                return { data, error }
-            },
-            ['chapter', chapterId],
-            { tags: [`chapter-${chapterId}`], revalidate: false }
-    )()
+    async function getChapter(chapterId: string) {
+        'use cache'
+        cacheTag(`chapter-${chapterId}`)
+        cacheLife('max')
 
+        const { data, error } = await supabase
+            .from('chapters')
+            .select(`*, novels(title)`)
+            .eq('id', chapterId)
+            .single()
+        return { data, error }
+    }
     const { data: chapter, error } = await getChapter(chapterId)
 
     if (error || !chapter) {
@@ -55,19 +51,18 @@ export default async function ChapterReadingPage({
     }
 
     // 2. ดึงข้อมูล (ก่อนหน้า, ถัดไป, และ **รายชื่อตอนทั้งหมด**)
-    const getChapterNav = (novelId: string, chapterNumber: number) =>
-        unstable_cache(
-            async () => {
-                const [prevRes, nextRes, allChaptersRes] = await Promise.all([
-                    supabase.from('chapters').select('id').eq('novel_id', novelId).lt('chapter_number', chapterNumber).order('chapter_number', { ascending: false }).limit(1),
-                    supabase.from('chapters').select('id').eq('novel_id', novelId).gt('chapter_number', chapterNumber).order('chapter_number', { ascending: true }).limit(1),
-                    supabase.from('chapters').select('id, title, chapter_number').eq('novel_id', novelId).order('chapter_number', { ascending: true }),
-                ])
-                return { prevRes, nextRes, allChaptersRes }
-            },
-            ['chapter-nav', novelId, String(chapterNumber)],
-            { tags: [`novel-${novelId}-toc`], revalidate: false }
-    )()
+    async function getChapterNav(novelId: string, chapterNumber: number) {
+        'use cache'
+        cacheTag(`novel-${novelId}-toc`)
+        cacheLife('max')
+
+        const [prevRes, nextRes, allChaptersRes] = await Promise.all([
+            supabase.from('chapters').select('id').eq('novel_id', novelId).lt('chapter_number', chapterNumber).order('chapter_number', { ascending: false }).limit(1),
+            supabase.from('chapters').select('id').eq('novel_id', novelId).gt('chapter_number', chapterNumber).order('chapter_number', { ascending: true }).limit(1),
+            supabase.from('chapters').select('id, title, chapter_number').eq('novel_id', novelId).order('chapter_number', { ascending: true }),
+        ])
+        return { prevRes, nextRes, allChaptersRes }
+    }    
 
     const { prevRes, nextRes, allChaptersRes } = await getChapterNav(id, chapter.chapter_number)
     const prevChapter = prevRes.data?.[0]
@@ -137,4 +132,5 @@ export default async function ChapterReadingPage({
             </div>
         </main>
     )
+    
 }
