@@ -54,7 +54,8 @@ export default async function ChapterReadingPage({
     async function getChapterNav(novelId: string, chapterNumber: number) {
         'use cache'
         cacheTag(`novel-${novelId}-toc`)
-        cacheLife('max')
+        // fallback กันเหนียว: ถ้า webhook พลาด nav จะ revalidate เองทุก 1 ชม.
+        cacheLife({ stale: 300, revalidate: 3600, expire: 86400 })
 
         const [prevRes, nextRes, allChaptersRes] = await Promise.all([
             supabase.from('chapters').select('id').eq('novel_id', novelId).lt('chapter_number', chapterNumber).order('chapter_number', { ascending: false }).limit(1),

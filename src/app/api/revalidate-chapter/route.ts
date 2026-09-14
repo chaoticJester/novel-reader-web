@@ -17,8 +17,7 @@ export async function POST(req: Request) {
         return Response.json({ revalidated: false, error: 'missing id/novel_id', payload }, { status: 400 })
     }
 
-    // { expire: 0 } = หมดอายุทันที (profile 'max' จะไม่ purge เพราะถือว่า fresh ตลอด)
-    revalidateTag(`chapter-${id}`, { expire: 0 })        // เนื้อหาตอนที่แก้ไข
-    revalidateTag(`novel-${novel_id}-toc`, { expire: 0 }) // สารบัญ + ปุ่มตอนก่อนหน้า/ถัดไป (ตอนใหม่/ลบตอน)
+    revalidateTag(`chapter-${id}`)        // เนื้อหาตอนที่แก้ไข
+    revalidateTag(`novel-${novel_id}-toc`) // สารบัญ + ปุ่มตอนก่อนหน้า/ถัดไป (ตอนใหม่/ลบตอน)
     return Response.json({ revalidated: true, id, novel_id })
 }
