@@ -17,8 +17,8 @@ async function getNovel(id: string) {
 async function getNovelChapters(id: string) {
     'use cache'
     cacheTag(`novel-${id}-toc`) // ใช้ tag เดียวกับหน้าอ่านตอน จะได้ purge พร้อมกันตอนมีตอนใหม่/ลบตอน
-    // fallback กันเหนียว: ถ้า webhook พลาด สารบัญจะ revalidate เองทุก 1 ชม.
-    cacheLife({ stale: 300, revalidate: 3600, expire: 86400 })
+    // fallback กันเหนียว: ถ้า webhook พลาด สารบัญจะ revalidate เองทุก 1 นาที
+    cacheLife({ stale: 30, revalidate: 60, expire: 86400 })
 
     return await supabase
         .from('chapters')
