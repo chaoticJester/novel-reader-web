@@ -17,7 +17,7 @@ export async function POST(req: Request) {
         return Response.json({ revalidated: false, error: 'missing id/novel_id', payload }, { status: 400 })
     }
 
-    revalidateTag(`chapter-${id}`)        // เนื้อหาตอนที่แก้ไข
-    revalidateTag(`novel-${novel_id}-toc`) // สารบัญ + ปุ่มตอนก่อนหน้า/ถัดไป (ตอนใหม่/ลบตอน)
+    revalidateTag(`chapter-${id}`, 'max')        // เนื้อหาตอนที่แก้ไข
+    revalidateTag(`novel-${novel_id}-toc`, 'max') // สารบัญ + ปุ่มตอนก่อนหน้า/ถัดไป (ตอนใหม่/ลบตอน)
     return Response.json({ revalidated: true, id, novel_id })
 }
