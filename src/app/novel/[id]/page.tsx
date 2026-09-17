@@ -89,7 +89,7 @@ export default async function NovelDetailPage({ params }: { params: Promise<{ id
                         ผู้แต่ง: <span className="text-gray-500 dark:text-slate-400 font-medium">{novel.author_name || 'ไม่ระบุ'}</span>
                     </p>
                     <p className="text- text-gray-500 dark:text-slate-400 mt-2">
-                        จำนวนตอน: {chapters.length}
+                        จำนวนตอน: {chapters? chapters.length : "error"}
                     </p>
                     {latestUpdate && (
                         <p className="text-sm text-gray-400 dark:text-slate-500 mt-2">
