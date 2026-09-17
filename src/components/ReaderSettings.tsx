@@ -19,8 +19,29 @@ const segButton = (active: boolean) =>
 const stepButton =
     'w-11 h-11 flex items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:border-blue-500 transition-colors font-medium'
 
-export default function ReaderSettings({ fonts }: { fonts: Font[] }) {
-    const [isOpen, setIsOpen] = useState(false)
+interface ReaderSettingsProps {
+    fonts: Font[]
+    triggerClassName?: string
+    showLabel?: boolean
+    isOpen?: boolean
+    onOpenChange?: (isOpen: boolean) => void
+    presentation?: 'modal' | 'top-panel'
+}
+
+export default function ReaderSettings({
+    fonts,
+    triggerClassName,
+    showLabel = false,
+    isOpen: controlledIsOpen,
+    onOpenChange,
+    presentation = 'modal',
+}: ReaderSettingsProps) {
+    const [uncontrolledIsOpen, setUncontrolledIsOpen] = useState(false)
+    const isOpen = controlledIsOpen ?? uncontrolledIsOpen
+    const setIsOpen = (next: boolean) => {
+        if (controlledIsOpen === undefined) setUncontrolledIsOpen(next)
+        onOpenChange?.(next)
+    }
     const { fontKey, setFontKey, fontSize, setFontSize, increaseFont, decreaseFont, resetFont, theme, setTheme } =
         useReaderSettings()
 
@@ -49,22 +70,26 @@ export default function ReaderSettings({ fonts }: { fonts: Font[] }) {
             <button
                 onClick={() => setIsOpen(true)}
                 aria-label="ตั้งค่าการอ่าน"
-                className="fixed bottom-5 right-5 z-30 w-14 h-14 flex items-center justify-center rounded-full bg-blue-500 hover:bg-blue-600 text-white shadow-lg transition-colors"
+                className={triggerClassName ?? 'fixed bottom-5 right-5 z-30 w-14 h-14 flex items-center justify-center rounded-full bg-blue-500 hover:bg-blue-600 text-white shadow-lg transition-colors'}
             >
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <circle cx="12" cy="12" r="3"></circle>
                     <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
                 </svg>
+                {showLabel && <span className="ml-2 hidden md:inline">ตั้งค่า</span>}
             </button>
 
             {isOpen && (
                 <div
-                    className="fixed inset-0 bg-black/50 z-40 flex items-end sm:items-center justify-center p-0 sm:p-4"
-                    onClick={() => setIsOpen(false)}
+                    className={presentation === 'top-panel'
+                        ? 'pointer-events-none fixed inset-x-0 top-16 z-40 flex justify-end p-2 sm:top-20 sm:px-4'
+                        : 'fixed inset-0 z-40 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4'}
+                    onClick={presentation === 'modal' ? () => setIsOpen(false) : undefined}
                 >
-                    {/* Bottom sheet บนมือถือ / modal กึ่งกลางบนเดสก์ท็อป */}
                     <div
-                        className="bg-white dark:bg-slate-900 w-full sm:max-w-md rounded-t-2xl sm:rounded-2xl max-h-[80vh] flex flex-col shadow-xl"
+                        className={presentation === 'top-panel'
+                            ? 'pointer-events-auto flex max-h-[calc(100vh-5rem)] w-full flex-col rounded-2xl bg-white shadow-xl dark:bg-slate-900 sm:w-[26rem]'
+                            : 'flex max-h-[80vh] w-full flex-col rounded-t-2xl bg-white shadow-xl dark:bg-slate-900 sm:max-w-md sm:rounded-2xl'}
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="flex justify-between items-center p-4 border-b border-gray-100 dark:border-gray-800">
@@ -126,29 +151,35 @@ export default function ReaderSettings({ fonts }: { fonts: Font[] }) {
 
                             {/* แบบอักษร */}
                             <section>
-                                <p className="text-sm font-medium text-gray-500 dark:text-slate-400 mb-2">แบบอักษร</p>
-                                <div className="flex flex-col gap-2">
-                                    {fonts.map((font) => {
-                                        const active = fontKey === font.key
-                                        return (
-                                            <button
-                                                key={font.key}
-                                                onClick={() => setFontKey(font.key)}
-                                                className={`${font.className} p-3 rounded-lg border text-left flex items-center justify-between transition-colors ${
-                                                    active
-                                                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/30 dark:border-blue-500'
-                                                        : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 hover:border-blue-300'
-                                                }`}
-                                            >
-                                                <span className="text-base text-slate-800 dark:text-slate-100">
-                                                    {font.label}
-                                                </span>
-                                                <span className="text-sm text-gray-400 dark:text-slate-500">
-                                                    ก ข ค AaBb
-                                                </span>
-                                            </button>
-                                        )
-                                    })}
+                                <label htmlFor="reader-font-select" className="text-sm font-medium text-gray-500 dark:text-slate-400 mb-2 block">แบบอักษร</label>
+                                <div className="relative">
+                                    <select
+                                        id="reader-font-select"
+                                        value={fontKey}
+                                        onChange={(e) => setFontKey(e.target.value)}
+                                        className={`${fonts.find((f) => f.key === fontKey)?.className ?? ''} h-11 w-full appearance-none rounded-lg border border-slate-200 bg-white pl-3 pr-10 text-base text-slate-800 transition-colors hover:border-blue-300 focus:border-blue-500 focus:outline-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100`}
+                                    >
+                                        {fonts.map((font) => (
+                                            <option key={font.key} value={font.key} className={font.className}>
+                                                {font.label} — ก ข ค AaBb
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        width="18"
+                                        height="18"
+                                        viewBox="0 0 24 24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        aria-hidden="true"
+                                        className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
+                                    >
+                                        <polyline points="6 9 12 15 18 9"></polyline>
+                                    </svg>
                                 </div>
                             </section>
                         </div>
