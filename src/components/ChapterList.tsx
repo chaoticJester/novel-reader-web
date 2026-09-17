@@ -26,7 +26,7 @@ export default function ChapterList({ novelId, chapters }: { novelId: string; ch
     return (
         <div>
             <div className="flex items-center justify-between mb-4">
-                <h2 className="text-2xl font-bold">รายชื่อตอน ({chapters.length} ตอน)</h2>
+                <h2 className="text-2xl font-bold">รายชื่อตอน</h2>
                 <button
                     onClick={() => setOrder((o) => (o === 'desc' ? 'asc' : 'desc'))}
                     aria-label="สลับการเรียงลำดับตอน"

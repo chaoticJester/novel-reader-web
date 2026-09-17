@@ -82,19 +82,21 @@ export default async function NovelDetailPage({ params }: { params: Promise<{ id
                     )}
                 </div>
 
-                {/* ชื่อเรื่อง และ ผู้แต่ง (จัดกึ่งกลางในแนวตั้งสำหรับจอคอมพิวเตอร์) */}
+                {/* Title, Author, Chapter number and the update time (จัดกึ่งกลางในแนวตั้งสำหรับจอคอมพิวเตอร์) */}
                 <div className="flex-1 flex flex-col justify-center h-full min-h-[250px] text-center md:text-left">
                     <h1 className="text-3xl md:text-4xl font-bold mb-4 text-slate-900 dark:text-slate-100">{novel.title}</h1>
-                    <p className="text-gray-500 dark:text-slate-400 text-lg">
+                    <p className=" text-2xl text-gray-500 dark:text-slate-400 text-lg">
                         ผู้แต่ง: <span className="text-gray-500 dark:text-slate-400 font-medium">{novel.author_name || 'ไม่ระบุ'}</span>
+                    </p>
+                    <p className="text- text-gray-500 dark:text-slate-400 mt-2">
+                        จำนวนตอน: {chapters.length}
                     </p>
                     {latestUpdate && (
                         <p className="text-sm text-gray-400 dark:text-slate-500 mt-2">
                             อัปเดตล่าสุด <RelativeTime iso={latestUpdate} />
                         </p>
-                    )}
+                    )}   
                 </div>
-
             </div>
 
             {/* ส่วนล่าง: เรื่องย่อ (แสดงเต็มความกว้าง) */}
