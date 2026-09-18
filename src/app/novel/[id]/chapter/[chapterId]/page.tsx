@@ -35,6 +35,7 @@ export async function generateStaticParams() {
     const { data: chapters } = await supabase
         .from('chapters')
         .select('id, novel_id')
+        .eq('publication_status', 'published')
         .limit(500) // จำกัดจำนวน build ล่วงหน้า ตอนที่เหลือ generate on-demand ตอน dynamicParams=true
 
     return (chapters || []).map((c) => ({
@@ -58,8 +59,10 @@ export default async function ChapterReadingPage({
 
         const { data, error } = await supabase
             .from('chapters')
-            .select(`*, novels(title)`)
+            .select(`*, novels!inner(title, publication_status)`)
             .eq('id', chapterId)
+            .eq('publication_status', 'published')
+            .eq('novels.publication_status', 'published')
             .single()
         return { data, error }
     }
@@ -77,9 +80,9 @@ export default async function ChapterReadingPage({
         cacheLife({ stale: 30, revalidate: 60, expire: 86400 })
 
         const [prevRes, nextRes, allChaptersRes] = await Promise.all([
-            supabase.from('chapters').select('id').eq('novel_id', novelId).lt('chapter_number', chapterNumber).order('chapter_number', { ascending: false }).limit(1),
-            supabase.from('chapters').select('id').eq('novel_id', novelId).gt('chapter_number', chapterNumber).order('chapter_number', { ascending: true }).limit(1),
-            supabase.from('chapters').select('id, title, chapter_number').eq('novel_id', novelId).order('chapter_number', { ascending: true }),
+            supabase.from('chapters').select('id').eq('novel_id', novelId).eq('publication_status', 'published').lt('chapter_number', chapterNumber).order('chapter_number', { ascending: false }).limit(1),
+            supabase.from('chapters').select('id').eq('novel_id', novelId).eq('publication_status', 'published').gt('chapter_number', chapterNumber).order('chapter_number', { ascending: true }).limit(1),
+            supabase.from('chapters').select('id, title, chapter_number').eq('novel_id', novelId).eq('publication_status', 'published').order('chapter_number', { ascending: true }),
         ])
         return { prevRes, nextRes, allChaptersRes }
     }    

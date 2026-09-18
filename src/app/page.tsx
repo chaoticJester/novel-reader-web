@@ -11,11 +11,12 @@ async function getNovels() {
 
     // ดึงนิยายทั้งหมด + ตอนล่าสุดของแต่ละเรื่อง แล้วเรียงตาม "เวลาที่มีตอนใหม่ล่าสุด"
     const [novelsRes, chaptersRes] = await Promise.all([
-        supabase.from('novels').select('*'),
+        supabase.from('novels').select('*').eq('publication_status', 'published'),
         // เรียงตอนจากใหม่ไปเก่า เพื่อให้ตอนแรกที่เจอของแต่ละเรื่องคือตอนล่าสุด
         supabase
             .from('chapters')
             .select('id, novel_id, title, chapter_number, created_at')
+            .eq('publication_status', 'published')
             .order('created_at', { ascending: false }),
     ])
 
@@ -113,7 +114,6 @@ export default async function Home() {
                                                     ตอนที่ {chapter.chapter_number}
                                                 </span>
                                                 <span className="min-w-0 truncate text-gray-700 dark:text-slate-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                                                    {chapter.title}
                                                 </span>
                                                 <span className="text-gray-400 dark:text-slate-500 whitespace-nowrap text-xs text-right">
                                                     <RelativeTime iso={chapter.created_at} />

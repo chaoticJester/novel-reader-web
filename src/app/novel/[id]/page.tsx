@@ -14,6 +14,7 @@ async function getNovel(id: string) {
         .from('novels')
         .select('*')
         .eq('id', id)
+        .eq('publication_status', 'published')
         .single() // .single() คือบอกว่าเอาแค่ Record เดียว (เพราะ ID ไม่ซ้ำกันอยู่แล้ว)
 }
 
@@ -27,6 +28,7 @@ async function getNovelChapters(id: string) {
         .from('chapters')
         .select('id, title, chapter_number, created_at')
         .eq('novel_id', id)
+        .eq('publication_status', 'published')
         .order('chapter_number', { ascending: true })
 }
 
@@ -34,6 +36,7 @@ export async function generateStaticParams() {
     const { data: novels } = await supabase
         .from('novels')
         .select('id')
+        .eq('publication_status', 'published')
         .limit(500)
 
     return (novels || []).map((n) => ({ id: n.id }))
