@@ -4,6 +4,8 @@ import LoginForm from './LoginForm'
 import { hasAuthorSession } from '@/lib/author-session'
 import ThemeToggle from '@/components/ThemeToggle'
 
+export const instant = false
+
 export default async function AuthorLoginPage() {
     if (await hasAuthorSession()) {
         redirect('/author')
