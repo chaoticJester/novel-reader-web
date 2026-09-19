@@ -82,7 +82,7 @@ export default async function ChapterReadingPage({
         const [prevRes, nextRes, allChaptersRes] = await Promise.all([
             supabase.from('chapters').select('id').eq('novel_id', novelId).eq('publication_status', 'published').lt('chapter_number', chapterNumber).order('chapter_number', { ascending: false }).limit(1),
             supabase.from('chapters').select('id').eq('novel_id', novelId).eq('publication_status', 'published').gt('chapter_number', chapterNumber).order('chapter_number', { ascending: true }).limit(1),
-            supabase.from('chapters').select('id, title, chapter_number').eq('novel_id', novelId).eq('publication_status', 'published').order('chapter_number', { ascending: true }),
+            supabase.from('chapters').select('id, title, chapter_number, created_at').eq('novel_id', novelId).eq('publication_status', 'published').order('chapter_number', { ascending: true }),
         ])
         return { prevRes, nextRes, allChaptersRes }
     }    

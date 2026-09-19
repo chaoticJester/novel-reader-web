@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { cacheTag, cacheLife } from 'next/cache'
 import ThemeToggle from '@/components/ThemeToggle'
 import RelativeTime from '@/components/RelativeTime'
+import NovelStatus from '@/components/NovelStatus'
 
 async function getNovels() {
     'use cache'
