@@ -4,6 +4,7 @@ import { cacheTag, cacheLife } from 'next/cache'
 import ThemeToggle from '@/components/ThemeToggle'
 import RelativeTime from '@/components/RelativeTime'
 import ChapterList from '@/components/ChapterList'
+import NovelStatus from '@/components/NovelStatus'
 
 async function getNovel(id: string) {
     'use cache'
@@ -99,6 +100,11 @@ export default async function NovelDetailPage({ params }: { params: Promise<{ id
                             อัปเดตล่าสุด <RelativeTime iso={latestUpdate} />
                         </p>
                     )}   
+                    <div style={{
+                        marginTop: 10,
+                    }}>
+                        <NovelStatus novelStatus={novel.status}/>
+                    </div>
                 </div>
             </div>
 

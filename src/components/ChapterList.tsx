@@ -58,13 +58,15 @@ export default function ChapterList({ novelId, chapters }: { novelId: string; ch
                             href={`/novel/${novelId}/chapter/${chapter.id}`}
                             className="flex items-baseline gap-4 p-4 bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-lg hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-sm transition-all"
                         >
-                            <span className="font-semibold text-black dark:text-slate-100 whitespace-nowrap">
-                                ตอนที่ {chapter.chapter_number}
-                            </span>
-                            <span className="text-black dark:text-slate-300 line-clamp-1">{chapter.title}</span>
-                            <span className="text-sm text-gray-400 dark:text-slate-500 whitespace-nowrap ml-auto">
-                                <RelativeTime iso={chapter.created_at} />
-                            </span>
+                            <div className='vertical-align: middle'>
+                                <p className="font-semibold text-black dark:text-slate-100 whitespace-nowrap">
+                                    ตอนที่ {chapter.chapter_number}
+                                </p>
+                                <p className="text-black dark:text-slate-400 line-clamp-1">{chapter.title}</p>
+                                <p className="text-sm text-gray-400 dark:text-slate-500 whitespace-nowrap ml-auto">
+                                    <RelativeTime iso={chapter.created_at} />
+                                </p>
+                            </div>
                         </Link>
                     </li>
                 ))}
