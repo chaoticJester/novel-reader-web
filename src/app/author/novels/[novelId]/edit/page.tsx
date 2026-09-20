@@ -6,6 +6,8 @@ import ChapterList from '@/components/author/ChapterList'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { updateNovel } from '../../../actions'
 
+export const instant = false
+
 export default async function EditNovelPage({
     params,
 }: {
