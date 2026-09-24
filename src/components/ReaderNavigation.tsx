@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState, type MouseEvent, type Pointer
 import Link from 'next/link'
 import ReaderSettings from '@/components/ReaderSettings'
 import TableOfContentsShelf from '@/components/TableOfContentsShelf'
+import { getReadChapters, setChapterRead } from '@/lib/read-chapters'
 
 export interface ReaderChapter {
     id: string
@@ -57,6 +58,7 @@ export default function ReaderNavigation({
     const [isSettingsOpen, setIsSettingsOpen] = useState(false)
     const [isTocOpen, setIsTocOpen] = useState(false)
     const [progress, setProgress] = useState(0)
+    const completedChapterRef = useRef<string | null>(null)
     const lastScrollYRef = useRef(0)
     const animationFrameRef = useRef<number | null>(null)
     const lastTouchTapRef = useRef(0)
@@ -70,17 +72,22 @@ export default function ReaderNavigation({
         const scrollHeight = Math.max(doc.scrollHeight, document.body.scrollHeight)
         const viewport = window.innerHeight || doc.clientHeight
         const maxScroll = scrollHeight - viewport
-        if (maxScroll <= 0) return 0
+        if (maxScroll <= 0) return 1
         return Math.min(1, Math.max(0, scrollTop / maxScroll))
     }, [])
 
     const applyProgress = useCallback(() => {
         const next = getProgress()
         setProgress((current) => (Math.abs(current - next) > 0.001 ? next : current))
-    }, [getProgress])
+        if (next >= 1 - 1 / Math.max(1, document.documentElement.scrollHeight - window.innerHeight) && completedChapterRef.current !== chapterId) {
+            completedChapterRef.current = chapterId
+            if (!getReadChapters(novelId).includes(chapterId)) setChapterRead(novelId, chapterId, true)
+        }
+    }, [getProgress, novelId, chapterId])
 
     // เปลี่ยนตอน: แสดงแถบเมนู ปิดพาเนล และคำนวณความคืบหน้าใหม่
     useEffect(() => {
+        completedChapterRef.current = null
         setIsNavigationVisible(true)
         setIsSettingsOpen(false)
         setIsTocOpen(false)
@@ -190,11 +197,11 @@ export default function ReaderNavigation({
                     {previousChapter ? <Link href={`/novel/${novelId}/chapter/${previousChapter.id}`} className="inline-flex h-10 shrink-0 items-center justify-center rounded-lg px-3 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"><span aria-hidden="true">←</span><span className="ml-1 hidden sm:inline">ตอนก่อนหน้า</span></Link> : <button disabled className="inline-flex h-10 shrink-0 items-center justify-center rounded-lg px-3 text-sm font-medium text-slate-400 dark:text-slate-600"><span aria-hidden="true">←</span><span className="ml-1 hidden sm:inline">ตอนก่อนหน้า</span></button>}
 
                     <div className="flex min-w-0 flex-1 items-center gap-2">
-                        <div className="h-2 min-w-0 flex-1 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700" role="progressbar" aria-label="ความคืบหน้าการอ่าน" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(progress * 100)}>
+                        <div className="h-2 min-w-0 flex-1 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700" role="progressbar" aria-label="ความคืบหน้าการอ่าน" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.floor(progress * 100)}>
                             <div className="h-full rounded-full bg-blue-500 transition-[width] duration-150" style={{ width: `${progress * 100}%` }} />
                         </div>
                         <span className="w-10 shrink-0 text-right text-xs font-medium tabular-nums text-slate-500 dark:text-slate-400">
-                            {Math.round(progress * 100)}%
+                            {Math.floor(progress * 100)}%
                         </span>
                     </div>
 

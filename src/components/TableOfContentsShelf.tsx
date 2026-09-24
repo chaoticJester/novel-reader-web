@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import Link from 'next/link'
+import { getReadChapters, READ_CHAPTERS_EVENT } from '@/lib/read-chapters'
 
 interface Chapter {
   id: string
@@ -32,7 +33,18 @@ export default function TableOfContentsShelf({
 }: TableOfContentsShelfProps) {
   const [uncontrolledIsOpen, setUncontrolledIsOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [readChapters, setReadChapters] = useState<string[]>([])
   useEffect(() => setMounted(true), [])
+  useEffect(() => {
+    const update = () => setReadChapters(getReadChapters(novelId))
+    update()
+    window.addEventListener('storage', update)
+    window.addEventListener(READ_CHAPTERS_EVENT, update)
+    return () => {
+      window.removeEventListener('storage', update)
+      window.removeEventListener(READ_CHAPTERS_EVENT, update)
+    }
+  }, [novelId])
   const isOpen = controlledIsOpen ?? uncontrolledIsOpen
   const setIsOpen = (next: boolean) => {
     if (controlledIsOpen === undefined) setUncontrolledIsOpen(next)
@@ -138,7 +150,7 @@ export default function TableOfContentsShelf({
                     >
                       <p
                         title={`ตอนที่ ${ch.chapter_number}`}
-                        className={`shrink-0 whitespace-nowrap font-medium tabular-nums truncate ${isCurrent ? 'text-blue-600 dark:text-blue-200' : 'text-gray-700 dark:text-gray-300'}`}
+                        className={`shrink-0 whitespace-nowrap font-medium tabular-nums truncate ${readChapters.includes(ch.id) ? 'text-gray-800 dark:text-gray-600' : isCurrent ? 'text-blue-600 dark:text-blue-200' : 'text-gray-700 dark:text-gray-300'}`}
                       >
                         ตอนที่ {ch.chapter_number} : {ch.title}
                       </p>

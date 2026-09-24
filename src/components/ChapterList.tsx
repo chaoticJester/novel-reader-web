@@ -1,8 +1,9 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import RelativeTime from '@/components/RelativeTime'
+import { getReadChapters, READ_CHAPTERS_EVENT } from '@/lib/read-chapters'
 
 interface Chapter {
     id: string
@@ -15,6 +16,18 @@ export default function ChapterList({ novelId, chapters }: { novelId: string; ch
     // ค่าเริ่มต้น: เรียงจากมากไปน้อย (ตอนใหม่สุดอยู่บน)
     const [search, setSearch] = useState('')
     const [order, setOrder] = useState<'desc' | 'asc'>('desc')
+    const [readChapters, setReadChapters] = useState<string[]>([])
+
+    useEffect(() => {
+        const update = () => setReadChapters(getReadChapters(novelId))
+        update()
+        window.addEventListener('storage', update)
+        window.addEventListener(READ_CHAPTERS_EVENT, update)
+        return () => {
+            window.removeEventListener('storage', update)
+            window.removeEventListener(READ_CHAPTERS_EVENT, update)
+        }
+    }, [novelId])
 
     const filteredAndSorted = useMemo(() => {
         const keyword = search.trim().toLowerCase()
@@ -109,10 +122,10 @@ export default function ChapterList({ novelId, chapters }: { novelId: string; ch
                             className="flex items-baseline gap-4 p-4 bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-lg hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-sm transition-all"
                         >
                             <div className='vertical-align: middle'>
-                                <p className="font-semibold text-black dark:text-slate-100 whitespace-nowrap">
+                                <p className={`font-semibold whitespace-nowrap ${readChapters.includes(chapter.id) ? 'text-black dark:text-slate-600' : 'text-black dark:text-slate-100'}`}>
                                     ตอนที่ {chapter.chapter_number}
                                 </p>
-                                <p className="text-black dark:text-slate-400 line-clamp-1">{chapter.title}</p>
+                                <p className={`line-clamp-1 ${readChapters.includes(chapter.id) ? 'text-black dark:text-slate-600' : 'text-black dark:text-slate-400'}`}>{chapter.title}</p>
                                 <p className="text-sm text-gray-400 dark:text-slate-500 whitespace-nowrap ml-auto">
                                     <RelativeTime iso={chapter.created_at} />
                                 </p>

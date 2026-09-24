@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { cacheTag, cacheLife } from 'next/cache'
 import ThemeToggle from '@/components/ThemeToggle'
 import RelativeTime from '@/components/RelativeTime'
-import NovelStatus from '@/components/NovelStatus'
+import RecentChapters from '@/components/RecentChapters'
 
 async function getNovels() {
     'use cache'
@@ -104,25 +104,7 @@ export default async function Home() {
                                 </p>
                             )}
                             {novel.latest_chapters.length > 0 ? (
-                                <ul className="inline-grid grid-cols-[auto_1fr_auto] items-baseline gap-x-6 gap-y-1 max-w-full text-sm">
-                                    {novel.latest_chapters.map((chapter: { id: string; title: string; chapter_number: number; created_at: string }) => (
-                                        <li key={chapter.id} className="contents group">
-                                            <Link
-                                                href={`/novel/${novel.id}/chapter/${chapter.id}`}
-                                                className="contents"
-                                            >
-                                                <span className="text-gray-400 dark:text-slate-500 whitespace-nowrap group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                                                    ตอนที่ {chapter.chapter_number}
-                                                </span>
-                                                <span className="min-w-0 truncate text-gray-700 dark:text-slate-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                                                </span>
-                                                <span className="text-gray-400 dark:text-slate-500 whitespace-nowrap text-xs text-right">
-                                                    <RelativeTime iso={chapter.created_at} />
-                                                </span>
-                                            </Link>
-                                        </li>
-                                    ))}
-                                </ul>
+                                <RecentChapters novelId={novel.id} chapters={novel.latest_chapters} />
                             ) : (
                                 <p className="text-sm text-gray-400 dark:text-slate-500">ยังไม่มีตอน</p>
                             )}
