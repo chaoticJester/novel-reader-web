@@ -16,7 +16,7 @@ async function getNovels() {
         // เรียงตอนจากใหม่ไปเก่า เพื่อให้ตอนแรกที่เจอของแต่ละเรื่องคือตอนล่าสุด
         supabase
             .from('chapters')
-            .select('id, novel_id, title, chapter_number, created_at')
+            .select('id, novel_id, chapter_number, created_at')
             .eq('publication_status', 'published')
             .order('created_at', { ascending: false }),
     ])
@@ -24,7 +24,7 @@ async function getNovels() {
     const error = novelsRes.error ?? chaptersRes.error
 
     // สร้าง map: novel_id -> 5 ตอนล่าสุด (เรียง desc มาแล้ว จึงเก็บ 5 ตัวแรกที่เจอ)
-    type Chapter = { id: string; title: string; chapter_number: number; created_at: string }
+    type Chapter = { id: string; chapter_number: number; created_at: string }
     const chaptersByNovel = new Map<string, Chapter[]>()
     for (const ch of chaptersRes.data ?? []) {
         const list = chaptersByNovel.get(ch.novel_id) ?? []
