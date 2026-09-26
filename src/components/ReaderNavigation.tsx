@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState, type MouseEvent, type PointerEvent, type ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react'
 import Link from 'next/link'
 import ReaderSettings from '@/components/ReaderSettings'
 import TableOfContentsShelf from '@/components/TableOfContentsShelf'
@@ -37,7 +37,6 @@ interface ReaderNavigationProps {
 }
 
 const SCROLL_THRESHOLD = 12
-const DOUBLE_TAP_DELAY = 350
 
 const isInteractiveTarget = (target: EventTarget | null) =>
     target instanceof Element && Boolean(target.closest('a, button, input, textarea, select, label, [role="button"]'))
@@ -61,7 +60,6 @@ export default function ReaderNavigation({
     const completedChapterRef = useRef<string | null>(null)
     const lastScrollYRef = useRef(0)
     const animationFrameRef = useRef<number | null>(null)
-    const lastTouchTapRef = useRef(0)
 
     const panelIsOpen = isSettingsOpen || isTocOpen
     const controlsVisible = isNavigationVisible || panelIsOpen
@@ -138,24 +136,9 @@ export default function ReaderNavigation({
         setIsNavigationVisible((visible) => !visible)
     }
 
-    const handleDoubleClick = (event: MouseEvent<HTMLDivElement>) => {
-        if (isInteractiveTarget(event.target) || Date.now() - lastTouchTapRef.current < DOUBLE_TAP_DELAY) return
+    const handleReaderClick = (event: MouseEvent<HTMLDivElement>) => {
+        if (isInteractiveTarget(event.target)) return
         toggleNavigation()
-    }
-
-    const handlePointerUp = (event: PointerEvent<HTMLDivElement>) => {
-        if (event.pointerType !== 'touch' || isInteractiveTarget(event.target)) return
-
-        const now = Date.now()
-        if (now - lastTouchTapRef.current <= DOUBLE_TAP_DELAY) {
-            // Keep this timestamp briefly so a browser-synthesized dblclick
-            // from the same touch gesture cannot toggle the bars a second time.
-            lastTouchTapRef.current = now
-            if (event.cancelable) event.preventDefault()
-            toggleNavigation()
-            return
-        }
-        lastTouchTapRef.current = now
     }
 
     const barVisibilityClass = controlsVisible ? 'translate-y-0 opacity-100' : 'pointer-events-none opacity-0'
@@ -188,7 +171,7 @@ export default function ReaderNavigation({
                 </div>
             </header>
 
-            <div className="mx-auto max-w-3xl touch-manipulation px-4 pb-24 pt-24 md:px-8 md:pb-28 md:pt-28" onDoubleClick={handleDoubleClick} onPointerUp={handlePointerUp}>
+            <div className="mx-auto max-w-3xl touch-manipulation px-4 pb-24 pt-24 md:px-8 md:pb-28 md:pt-28" onClick={handleReaderClick}>
                 {children}
             </div>
 
