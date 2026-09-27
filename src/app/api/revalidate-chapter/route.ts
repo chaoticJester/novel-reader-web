@@ -17,8 +17,8 @@ export async function POST(req: Request) {
         return Response.json({ revalidated: false, error: 'missing id/novel_id', payload }, { status: 400 })
     }
 
-    revalidateTag(`chapter-${id}`, 'max')        // เนื้อหาตอนที่แก้ไข
-    revalidateTag(`novel-${novel_id}-toc`, 'max') // สารบัญ + ปุ่มตอนก่อนหน้า/ถัดไป (ตอนใหม่/ลบตอน)
-    revalidateTag('novels-list', 'max')           // หน้าแรก: จัดเรียงใหม่ตามตอนล่าสุด
+    revalidateTag(`chapter-${id}`, { expire: 0 })        // เนื้อหาตอนที่แก้ไข
+    revalidateTag(`novel-${novel_id}-toc`, { expire: 0 }) // สารบัญ + ปุ่มตอนก่อนหน้า/ถัดไป (ตอนใหม่/ลบตอน)
+    revalidateTag('novels-list', { expire: 0 })           // หน้าแรก: จัดเรียงใหม่ตามตอนล่าสุด
     return Response.json({ revalidated: true, id, novel_id })
 }

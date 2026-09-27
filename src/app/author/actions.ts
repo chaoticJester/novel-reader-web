@@ -1,6 +1,6 @@
 'use server'
 
-import { revalidateTag } from 'next/cache'
+import { updateTag } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { requireAuthorSession } from '@/lib/author-session'
 import { supabaseAdmin } from '@/lib/supabase-admin'
@@ -35,7 +35,7 @@ export async function createNovel(formData: FormData) {
         throw new Error(`สร้างนิยายไม่สำเร็จ: ${error.message}`)
     }
 
-    revalidateTag('novels-list', 'max')
+    updateTag('novels-list')
     redirect(`/author/novels/${data.id}/edit`)
 }
 
@@ -76,8 +76,8 @@ export async function updateNovel(
         await removeManagedCover(existingNovel.cover_image_url)
     }
 
-    revalidateTag('novels-list', 'max')
-    revalidateTag(`novel-${novelId}`, 'max')
+    updateTag('novels-list')
+    updateTag(`novel-${novelId}`)
     redirect('/author')
 }
 
@@ -105,9 +105,9 @@ export async function deleteNovel(novelId: string) {
 
     await removeManagedCover(existingNovel.cover_image_url)
 
-    revalidateTag('novels-list', 'max')
-    revalidateTag(`novel-${novelId}`, 'max')
-    revalidateTag(`novel-${novelId}-toc`, 'max')
+    updateTag('novels-list')
+    updateTag(`novel-${novelId}`)
+    updateTag(`novel-${novelId}-toc`)
     redirect('/author')
 }
 
@@ -132,9 +132,9 @@ export async function createChapter(
         throw new Error(`สร้างตอนไม่สำเร็จ: ${error.message}`)
     }
 
-    revalidateTag('novels-list', 'max')
-    revalidateTag(`novel-${novelId}-toc`, 'max')
-    revalidateTag(`chapter-${data.id}`, 'max')
+    updateTag('novels-list')
+    updateTag(`novel-${novelId}-toc`)
+    updateTag(`chapter-${data.id}`)
 
     redirect(`/author/novels/${novelId}/edit`)
 }
@@ -158,9 +158,9 @@ export async function updateChapter(
         throw new Error(`แก้ไขตอนไม่สำเร็จ: ${error.message}`)
     }
 
-    revalidateTag('novels-list', 'max')
-    revalidateTag(`novel-${novelId}-toc`, 'max')
-    revalidateTag(`chapter-${chapterId}`, 'max')
+    updateTag('novels-list')
+    updateTag(`novel-${novelId}-toc`)
+    updateTag(`chapter-${chapterId}`)
 
     redirect(`/author/novels/${novelId}/edit`)
 }
@@ -181,9 +181,9 @@ export async function deleteChapter(
         throw new Error(`ลบตอนไม่สำเร็จ: ${error.message}`)
     }
 
-    revalidateTag('novels-list', 'max')
-    revalidateTag(`novel-${novelId}-toc`, 'max')
-    revalidateTag(`chapter-${chapterId}`, 'max')
+    updateTag('novels-list')
+    updateTag(`novel-${novelId}-toc`)
+    updateTag(`chapter-${chapterId}`)
 
     redirect(`/author/novels/${novelId}/edit`)
 }
