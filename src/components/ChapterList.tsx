@@ -36,10 +36,7 @@ export default function ChapterList({ novelId, chapters }: { novelId: string; ch
             .filter((chapter) => {
                 if (!keyword) return true
 
-                return (
-                    chapter.title.toLowerCase().includes(keyword) ||
-                    chapter.chapter_number.toString().includes(keyword)
-                )
+                return chapter.title.toLowerCase().includes(keyword) || chapter.chapter_number === Number(keyword) 
             })
             .sort((a, b) =>
                 order === 'asc'
