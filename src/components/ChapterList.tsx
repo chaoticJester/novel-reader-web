@@ -113,27 +113,28 @@ export default function ChapterList({ novelId, chapters }: { novelId: string; ch
                     </button>
                 </div>
             </div>
-
-            <ul className="space-y-2">
-                {filteredAndSorted.map((chapter) => (
-                    <li key={chapter.id}>
-                        <Link
-                            href={`/novel/${novelId}/chapter/${chapter.id}`}
-                            className="flex items-baseline gap-4 p-4 bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-lg hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-sm transition-all"
-                        >
-                            <div className='vertical-align: middle'>
-                                <p className={`font-semibold whitespace-nowrap ${readChapters.includes(chapter.id) ? 'text-black dark:text-slate-600' : 'text-black dark:text-slate-100'}`}>
-                                    ตอนที่ {chapter.chapter_number}
-                                </p>
-                                <p className={`line-clamp-1 ${readChapters.includes(chapter.id) ? 'text-black dark:text-slate-600' : 'text-black dark:text-slate-400'}`}>{chapter.title}</p>
-                                <p className="text-sm text-gray-400 dark:text-slate-500 whitespace-nowrap ml-auto">
-                                    <RelativeTime iso={chapter.created_at} />
-                                </p>
-                            </div>
-                        </Link>
-                    </li>
-                ))}
-            </ul>
+            <div className="chapter-list-scrollbar max-h-156 overflow-y-auto pr-1">
+              <ul className="space-y-2">
+                  {filteredAndSorted.map((chapter) => (
+                      <li key={chapter.id}>
+                          <Link
+                              href={`/novel/${novelId}/chapter/${chapter.id}`}
+                              className="flex items-baseline gap-4 p-4 bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-lg hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-sm transition-all"
+                          >
+                              <div className='vertical-align: middle'>
+                                  <p className={`font-semibold whitespace-nowrap ${readChapters.includes(chapter.id) ? 'text-black dark:text-slate-600' : 'text-black dark:text-slate-100'}`}>
+                                      ตอนที่ {chapter.chapter_number}
+                                  </p>
+                                  <p className={`line-clamp-1 ${readChapters.includes(chapter.id) ? 'text-black dark:text-slate-600' : 'text-black dark:text-slate-400'}`}>{chapter.title}</p>
+                                  <p className="text-sm text-gray-400 dark:text-slate-500 whitespace-nowrap ml-auto">
+                                      <RelativeTime iso={chapter.created_at} />
+                                  </p>
+                              </div>
+                          </Link>
+                      </li>
+                  ))}
+              </ul>
+            </div>
         </div>
     )
 }

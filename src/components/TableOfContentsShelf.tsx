@@ -132,7 +132,7 @@ export default function TableOfContentsShelf({
             </div>
 
             {/* รายชื่อตอน (เลื่อนได้) */}
-            <div className="overflow-y-auto p-4 flex-1">
+            <div className="chapter-list-scrollbar flex-1 overflow-y-auto p-4">
               <div className="flex flex-col gap-2">
                 {sortedChapters.map((ch) => {
                   const isCurrent = ch.id === currentChapterId
