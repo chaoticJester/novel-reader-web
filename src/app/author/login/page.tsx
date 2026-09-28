@@ -2,7 +2,6 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import LoginForm from './LoginForm'
 import { hasAuthorSession } from '@/lib/author-session'
-import ThemeToggle from '@/components/ThemeToggle'
 
 export const instant = false
 
@@ -12,9 +11,8 @@ export default async function AuthorLoginPage() {
     }
 
     return (
-        <main className="relative grid min-h-screen place-items-center overflow-hidden bg-slate-950 px-5 py-12 text-white">
+        <main className="relative grid min-h-screen place-items-center overflow-hidden bg-black px-5 py-12 text-white">
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(79,70,229,0.35),transparent_34%),radial-gradient(circle_at_82%_75%,rgba(14,165,233,0.18),transparent_30%)]" />
-            <div className="absolute right-5 top-5"><ThemeToggle /></div>
 
             <div className="relative w-full max-w-md">
                 <Link href="/" className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white">← กลับหน้าอ่านนิยาย</Link>

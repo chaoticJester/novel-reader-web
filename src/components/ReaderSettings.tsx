@@ -63,6 +63,18 @@ export default function ReaderSettings({
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
         </svg>
     )
+    const SepiaIcon = (
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z" />
+        </svg>
+    )
+    const EyeCareIcon = (
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 18 2 18 2c1 5.5-1 10-5 12" />
+            <path d="M2 21c0-3 1.85-5.36 5.08-6.94C9.15 13.05 12 12 16 12" />
+        </svg>
+    )
 
     return (
         <>
@@ -88,8 +100,8 @@ export default function ReaderSettings({
                 >
                     <div
                         className={presentation === 'top-panel'
-                            ? 'pointer-events-auto flex max-h-[calc(100vh-5rem)] w-full flex-col rounded-2xl bg-white shadow-xl dark:bg-slate-900 sm:w-[26rem]'
-                            : 'flex max-h-[80vh] w-full flex-col rounded-t-2xl bg-white shadow-xl dark:bg-slate-900 sm:max-w-md sm:rounded-2xl'}
+                            ? 'pointer-events-auto flex max-h-[calc(100vh-5rem)] w-full flex-col rounded-2xl bg-white shadow-xl dark:bg-black sm:w-[26rem]'
+                            : 'flex max-h-[80vh] w-full flex-col rounded-t-2xl bg-white shadow-xl dark:bg-black sm:max-w-md sm:rounded-2xl'}
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className="flex justify-between items-center p-4 border-b border-gray-100 dark:border-gray-800">
@@ -110,6 +122,12 @@ export default function ReaderSettings({
                                 <div className="grid grid-cols-2 gap-2">
                                     <button onClick={() => setTheme('light')} className={segButton(theme === 'light')}>
                                         {SunIcon} สว่าง
+                                    </button>
+                                    <button onClick={() => setTheme('sepia')} className={segButton(theme === 'sepia')}>
+                                        {SepiaIcon} Sepia
+                                    </button>
+                                    <button onClick={() => setTheme('eye-care')} className={segButton(theme === 'eye-care')}>
+                                        {EyeCareIcon} ถนอมสายตา
                                     </button>
                                     <button onClick={() => setTheme('dark')} className={segButton(theme === 'dark')}>
                                         {MoonIcon} มืด

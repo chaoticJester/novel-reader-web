@@ -1,8 +1,8 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
+import { createContext, useContext, useSyncExternalStore, type ReactNode } from 'react'
 
-type Theme = 'light' | 'dark'
+type Theme = 'light' | 'sepia' | 'eye-care' | 'dark'
 
 interface ReaderSettings {
     fontKey: string
@@ -25,36 +25,64 @@ const clamp = (n: number) => Math.min(MAX_SIZE, Math.max(MIN_SIZE, n))
 
 const ReaderSettingsContext = createContext<ReaderSettings | null>(null)
 
-export function ReaderSettingsProvider({ children }: { children: ReactNode }) {
-    const [fontKey, setFontKeyState] = useState(DEFAULT_FONT)
-    const [fontSize, setFontSizeState] = useState(DEFAULT_SIZE)
-    const [theme, setThemeState] = useState<Theme>('light')
+const readerSettingKeys = new Set(['reader-font', 'reader-font-size', 'reader-theme'])
+const readerSettingSubscribers = new Set<() => void>()
+const memoryFallback = new Map<string, string>()
 
-    // ดึงค่าที่บันทึกไว้ (ต่ออุปกรณ์) หลัง mount เพื่อกัน hydration mismatch
-    useEffect(() => {
-        try {
-            const fk = localStorage.getItem('reader-font')
-            if (fk) setFontKeyState(fk)
-            const fs = localStorage.getItem('reader-font-size')
-            if (fs) setFontSizeState(clamp(Number(fs)))
-        } catch {}
-        // ธีมใช้ค่าเดียวกับปุ่มสลับธีมหน้าอื่น (class 'dark' บน <html> + key 'theme')
-        setThemeState(document.documentElement.classList.contains('dark') ? 'dark' : 'light')
-    }, [])
+const subscribeToReaderSettings = (callback: () => void) => {
+    readerSettingSubscribers.add(callback)
+
+    const handleStorage = (event: StorageEvent) => {
+        if (event.key && readerSettingKeys.has(event.key)) callback()
+    }
+    window.addEventListener('storage', handleStorage)
+
+    return () => {
+        readerSettingSubscribers.delete(callback)
+        window.removeEventListener('storage', handleStorage)
+    }
+}
+
+const readSetting = (key: string) => {
+    try {
+        return localStorage.getItem(key)
+    } catch {
+        return memoryFallback.get(key) ?? null
+    }
+}
+
+const writeSetting = (key: string, value: string) => {
+    memoryFallback.set(key, value)
+    try {
+        localStorage.setItem(key, value)
+    } catch {}
+    readerSettingSubscribers.forEach((callback) => callback())
+}
+
+const getFontSnapshot = () => readSetting('reader-font') || DEFAULT_FONT
+const getFontSizeSnapshot = () => {
+    const storedSize = Number(readSetting('reader-font-size'))
+    return Number.isFinite(storedSize) && storedSize > 0 ? clamp(storedSize) : DEFAULT_SIZE
+}
+const getThemeSnapshot = (): Theme => {
+    const savedTheme = readSetting('reader-theme')
+    if (savedTheme === 'light' || savedTheme === 'sepia' || savedTheme === 'eye-care') return savedTheme
+    return 'dark'
+}
+const getDefaultThemeSnapshot = (): Theme => 'dark'
+
+export function ReaderSettingsProvider({ children }: { children: ReactNode }) {
+    const fontKey = useSyncExternalStore(subscribeToReaderSettings, getFontSnapshot, () => DEFAULT_FONT)
+    const fontSize = useSyncExternalStore(subscribeToReaderSettings, getFontSizeSnapshot, () => DEFAULT_SIZE)
+    const theme = useSyncExternalStore(subscribeToReaderSettings, getThemeSnapshot, getDefaultThemeSnapshot)
 
     const setFontKey = (key: string) => {
-        setFontKeyState(key)
-        try {
-            localStorage.setItem('reader-font', key)
-        } catch {}
+        writeSetting('reader-font', key)
     }
 
     const setFontSize = (size: number) => {
         const next = clamp(size)
-        setFontSizeState(next)
-        try {
-            localStorage.setItem('reader-font-size', String(next))
-        } catch {}
+        writeSetting('reader-font-size', String(next))
     }
 
     const increaseFont = () => setFontSize(fontSize + 1)
@@ -62,11 +90,7 @@ export function ReaderSettingsProvider({ children }: { children: ReactNode }) {
     const resetFont = () => setFontSize(DEFAULT_SIZE)
 
     const setTheme = (next: Theme) => {
-        setThemeState(next)
-        document.documentElement.classList.toggle('dark', next === 'dark')
-        try {
-            localStorage.setItem('theme', next)
-        } catch {}
+        writeSetting('reader-theme', next)
     }
 
     return (

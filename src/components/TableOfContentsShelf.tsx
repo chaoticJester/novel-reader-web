@@ -115,7 +115,7 @@ export default function TableOfContentsShelf({
           onClick={() => setIsOpen(false)} // กดพื้นที่ว่างเพื่อปิด
         >
           <div
-            className={`z-50 flex h-full w-full max-w-sm flex-col bg-white shadow-xl transition-transform duration-300 ease-out dark:bg-slate-900 md:w-1/2 lg:w-2/5 xl:w-1/3 ${
+            className={`z-50 flex h-full w-full max-w-sm flex-col bg-white shadow-xl transition-transform duration-300 ease-out dark:bg-black md:w-1/2 lg:w-2/5 xl:w-1/3 ${
               isVisible ? 'translate-x-0' : 'translate-x-full'
             }`}
             onClick={(e) => e.stopPropagation()} // ป้องกันการกดทะลุไปโดนฉากหลัง

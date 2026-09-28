@@ -5,7 +5,6 @@ import StatusBadge from '@/components/author/StatusBadge'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { deleteNovel } from './actions'
 import { logout } from './login/actions'
-import ThemeToggle from '@/components/ThemeToggle'
 
 export const instant = false
 
@@ -26,7 +25,6 @@ export default async function AuthorDashboard() {
             title="นิยายทั้งหมด"
             actions={(
                 <>
-                    <ThemeToggle />
                     <Link href="/" className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 transition hover:border-indigo-300 hover:text-indigo-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">ดูหน้าเว็บไซต์</Link>
                     <form action={logout}><button className="px-3 py-2.5 text-sm font-bold text-slate-500 transition hover:text-rose-600 dark:text-slate-400">ออกจากระบบ</button></form>
                 </>

@@ -106,11 +106,11 @@ export default async function ChapterReadingPage({
                 fonts={FONTS}
             >
                 <main className="min-h-screen transition-colors">
-                    <div className="mb-10 border-b border-slate-200 pb-6 text-center dark:border-slate-700">
-                        <h1 className="mb-4 text-2xl font-bold text-slate-900 dark:text-slate-100 md:text-3xl">
+                    <div className="mb-10 border-b border-[var(--reader-border)] pb-6 text-center">
+                        <h1 className="mb-4 text-2xl font-bold text-[var(--reader-foreground)] md:text-3xl">
                             ตอนที่ {chapter.chapter_number}: {chapter.title}
                         </h1>
-                        <p className="text-sm text-gray-400 dark:text-slate-500">
+                        <p className="text-sm text-[var(--reader-muted)]">
                             อัปเดตเมื่อ: {new Date(chapter.created_at).toLocaleDateString('th-TH')}
                         </p>
                     </div>

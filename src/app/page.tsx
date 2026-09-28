@@ -1,7 +1,6 @@
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { cacheTag, cacheLife } from 'next/cache'
-import ThemeToggle from '@/components/ThemeToggle'
 import RelativeTime from '@/components/RelativeTime'
 import RecentChapters from '@/components/RecentChapters'
 
@@ -60,9 +59,8 @@ export default async function Home() {
 
     return (
         <main className="container mx-auto p-8">
-            <div className="flex items-center justify-between mb-8">
+            <div className="mb-8">
                 <h1 className="text-3xl font-bold">นิยายแปลอัปเดตล่าสุด</h1>
-                <ThemeToggle />
             </div>
 
             {/* รายการนิยาย: ปกด้านซ้าย + 5 ตอนล่าสุดด้านขวา */}

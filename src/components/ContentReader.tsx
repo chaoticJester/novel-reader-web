@@ -20,7 +20,7 @@ export default function ContentReader({ content, fonts }: ContentReaderProps) {
 
   return (
     <div
-      className={`${fontClassName} text-slate-800 dark:text-slate-200 leading-loose whitespace-pre-wrap min-h-[40vh] transition-all duration-300 ease-in-out`}
+      className={`${fontClassName} min-h-[40vh] whitespace-pre-wrap text-[var(--reader-foreground)] transition-all duration-300 ease-in-out leading-loose`}
       style={{ fontSize: `${fontSize}px` }}
     >
       <ReactMarkdown>{content}</ReactMarkdown>

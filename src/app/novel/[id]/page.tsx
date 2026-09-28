@@ -1,7 +1,6 @@
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 import { cacheTag, cacheLife } from 'next/cache'
-import ThemeToggle from '@/components/ThemeToggle'
 import RelativeTime from '@/components/RelativeTime'
 import ChapterList from '@/components/ChapterList'
 import NovelStatus from '@/components/NovelStatus'
@@ -65,11 +64,10 @@ export default async function NovelDetailPage({ params }: { params: Promise<{ id
 
     return (
         <main className="container mx-auto p-8 max-w-4xl">
-            <div className="flex items-center justify-between mb-6">
+            <div className="mb-6">
                 <Link href="/" className="text-blue-500 hover:underline dark:text-blue-400 inline-block">
                     &larr; กลับหน้าหลัก
                 </Link>
-                <ThemeToggle />
             </div>
 
             {/* ส่วนบน: รูปหน้าปก (ซ้าย) และ ชื่อเรื่อง/ผู้แต่ง (ขวา จัดกึ่งกลาง) */}

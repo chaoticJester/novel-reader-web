@@ -1,11 +1,11 @@
 @import "tailwindcss";
 
-/* เปิดใช้ dark mode แบบ class (สลับได้ด้วยปุ่ม) แทนการอิงกับ prefers-color-scheme อย่างเดียว */
-@custom-variant dark (&:where(.dark, .dark *));
+/* เว็บไซต์ใช้ธีมมืดถาวร แต่หน้าอ่านสามารถยกเว้น dark variant ภายในขอบเขตของตัวเองได้ */
+@custom-variant dark (&:where(.dark, .dark *):not(:where(.reader-light, .reader-light *, .reader-sepia, .reader-sepia *, .reader-eye-care, .reader-eye-care *)));
 
 :root {
-    --background: #ffffff;
-    --foreground: #171717;
+    --background: #000000;
+    --foreground: #f8fafc;
 }
 
 @theme inline {
@@ -16,8 +16,36 @@
 }
 
 .dark {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #000000;
+    --foreground: #f8fafc;
+}
+
+.reader-light {
+    --reader-background: #ffffff;
+    --reader-foreground: #1e293b;
+    --reader-muted: #64748b;
+    --reader-border: #e2e8f0;
+}
+
+.reader-sepia {
+    --reader-background: #f4ecd8;
+    --reader-foreground: #4b382a;
+    --reader-muted: #806b55;
+    --reader-border: #d8c9aa;
+}
+
+.reader-dark {
+    --reader-background: #000000;
+    --reader-foreground: #f8fafc;
+    --reader-muted: #94a3b8;
+    --reader-border: #1e293b;
+}
+
+.reader-eye-care {
+    --reader-background: #e3ead7;
+    --reader-foreground: #29382c;
+    --reader-muted: #657267;
+    --reader-border: #bdcbb5;
 }
 
 body {

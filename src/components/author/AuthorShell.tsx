@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import ThemeToggle from '@/components/ThemeToggle'
 
 type Props = {
     eyebrow?: string
@@ -23,7 +22,7 @@ export default function AuthorShell({
     width = 'wide',
 }: Props) {
     return (
-        <main className="relative min-h-screen overflow-hidden bg-slate-50 text-slate-950 dark:bg-[#080d1a] dark:text-slate-100">
+        <main className="relative min-h-screen overflow-hidden bg-slate-50 text-slate-950 dark:bg-black dark:text-slate-100">
             <div className={`relative mx-auto px-5 py-6 sm:px-8 sm:py-8 ${width === 'editor' ? 'max-w-4xl' : 'max-w-6xl'}`}>
 
                 {backHref && (
