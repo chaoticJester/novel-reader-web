@@ -63,12 +63,14 @@ export default async function ChapterReadingPage({
             .eq('id', chapterId)
             .eq('publication_status', 'published')
             .eq('novels.publication_status', 'published')
-            .single()
-        return { data, error }
+            .maybeSingle()
+        // โยน error เพื่อไม่ให้ cache เก็บผลลัพธ์ที่ล้มเหลว (เช่นตอน Supabase ล่ม/restart) ไว้ถาวร
+        if (error) throw new Error(`Failed to load chapter: ${error.message}`)
+        return { data }
     }
-    const { data: chapter, error } = await getChapter(chapterId)
+    const { data: chapter } = await getChapter(chapterId)
 
-    if (error || !chapter) {
+    if (!chapter) {
         return <div className="p-8 text-center text-red-500">ไม่พบเนื้อหาตอนนี้ หรือเกิดข้อผิดพลาด</div>
     }
 
@@ -84,6 +86,8 @@ export default async function ChapterReadingPage({
             supabase.from('chapters').select('id').eq('novel_id', novelId).eq('publication_status', 'published').gt('chapter_number', chapterNumber).order('chapter_number', { ascending: true }).limit(1),
             supabase.from('chapters').select('id, title, chapter_number, created_at').eq('novel_id', novelId).eq('publication_status', 'published').order('chapter_number', { ascending: true }),
         ])
+        const failed = [prevRes, nextRes, allChaptersRes].find((r) => r.error)
+        if (failed?.error) throw new Error(`Failed to load chapter nav: ${failed.error.message}`)
         return { prevRes, nextRes, allChaptersRes }
     }    
 
