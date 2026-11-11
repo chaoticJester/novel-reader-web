@@ -19,7 +19,7 @@ export default async function EditNovelPage({
         supabaseAdmin
             .from('novels')
             .select(
-                'id, title, author_name, description, cover_image_url, publication_status'
+                'id, title, author_name, description, cover_image_url, publication_status, status, tags(name)'
             )
             .eq('id', novelId)
             .single(),

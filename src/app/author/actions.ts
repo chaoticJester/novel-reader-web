@@ -7,6 +7,8 @@ import { supabaseAdmin } from '@/lib/supabase-admin'
 import {
     parseChapterForm,
     parseNovelForm,
+    parseTagNames,
+    type TagInput,
 } from '@/lib/author-validation'
 import {
     getCoverFile,
@@ -14,10 +16,68 @@ import {
     uploadCover,
 } from '@/lib/cover-storage'
 
+// Make the novel's tags exactly match `tags`:
+// 1. create any tags that don't exist yet
+// 2. remove links to tags that were taken out
+// 3. add links to the new tags
+async function syncNovelTags(novelId: string, tags: TagInput[]) {
+    let tagIds: number[] = []
+
+    if (tags.length > 0) {
+        const { error: insertError } = await supabaseAdmin
+            .from('tags')
+            .upsert(tags, { onConflict: 'slug', ignoreDuplicates: true })
+
+        if (insertError) {
+            throw new Error(`บันทึกแท็กไม่สำเร็จ: ${insertError.message}`)
+        }
+
+        const { data: tagRows, error: lookupError } = await supabaseAdmin
+            .from('tags')
+            .select('id')
+            .in('slug', tags.map((t) => t.slug))
+
+        if (lookupError) {
+            throw new Error(`ค้นหาแท็กไม่สำเร็จ: ${lookupError.message}`)
+        }
+
+        tagIds = tagRows.map((row) => row.id)
+    }
+
+    let removeQuery = supabaseAdmin
+        .from('novel_tags')
+        .delete()
+        .eq('novel_id', novelId)
+
+    if (tagIds.length > 0) {
+        removeQuery = removeQuery.not('tag_id', 'in', `(${tagIds.join(',')})`)
+    }
+
+    const { error: removeError } = await removeQuery
+
+    if (removeError) {
+        throw new Error(`ลบแท็กเดิมไม่สำเร็จ: ${removeError.message}`)
+    }
+
+    if (tagIds.length > 0) {
+        const { error: linkError } = await supabaseAdmin
+            .from('novel_tags')
+            .upsert(
+                tagIds.map((tagId) => ({ novel_id: novelId, tag_id: tagId })),
+                { onConflict: 'novel_id,tag_id', ignoreDuplicates: true },
+            )
+
+        if (linkError) {
+            throw new Error(`เชื่อมแท็กกับนิยายไม่สำเร็จ: ${linkError.message}`)
+        }
+    }
+}
+
 export async function createNovel(formData: FormData) {
     await requireAuthorSession()
 
     const values = parseNovelForm(formData)
+    const tags = parseTagNames(formData)
     const coverFile = getCoverFile(formData)
     const coverImageUrl = coverFile ? await uploadCover(coverFile) : null
 
@@ -35,6 +95,8 @@ export async function createNovel(formData: FormData) {
         throw new Error(`สร้างนิยายไม่สำเร็จ: ${error.message}`)
     }
 
+    await syncNovelTags(data.id, tags)
+
     updateTag('novels-list')
     redirect(`/author/novels/${data.id}/edit`)
 }
@@ -46,6 +108,7 @@ export async function updateNovel(
     await requireAuthorSession()
 
     const values = parseNovelForm(formData)
+    const tags = parseTagNames(formData)
     const coverFile = getCoverFile(formData)
     const { data: existingNovel, error: lookupError } = await supabaseAdmin
         .from('novels')
@@ -75,6 +138,8 @@ export async function updateNovel(
     if (newCoverUrl) {
         await removeManagedCover(existingNovel.cover_image_url)
     }
+
+    await syncNovelTags(novelId, tags)
 
     updateTag('novels-list')
     updateTag(`novel-${novelId}`)

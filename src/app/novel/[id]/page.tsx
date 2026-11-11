@@ -1,5 +1,6 @@
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
+import Image from 'next/image'
 import { cacheTag, cacheLife } from 'next/cache'
 import RelativeTime from '@/components/RelativeTime'
 import ChapterList from '@/components/ChapterList'
@@ -12,7 +13,7 @@ async function getNovel(id: string) {
 
     return await supabase
         .from('novels')
-        .select('*')
+        .select('*, tags(id, name, slug)')
         .eq('id', id)
         .eq('publication_status', 'published')
         .single() // .single() คือบอกว่าเอาแค่ Record เดียว (เพราะ ID ไม่ซ้ำกันอยู่แล้ว)
@@ -72,14 +73,14 @@ export default async function NovelDetailPage({ params }: { params: Promise<{ id
 
             {/* ส่วนบน: รูปหน้าปก (ซ้าย) และ ชื่อเรื่อง/ผู้แต่ง (ขวา จัดกึ่งกลาง) */}
             <div className="flex flex-col md:flex-row gap-8 mb-8 items-center md:items-start">
-                
+
                 {/* รูปปกนิยาย */}
                 <div className="w-full md:w-1/3 lg:w-1/4 aspect-[3/4] bg-slate-200 dark:bg-slate-700 rounded-lg shrink-0">
                     {novel.cover_image_url && (
-                        <img 
-                            src={novel.cover_image_url} 
-                            alt={novel.title} 
-                            className="w-full h-full object-cover rounded-lg shadow-md" 
+                        <img
+                            src={novel.cover_image_url}
+                            alt={novel.title}
+                            className="w-full h-full object-cover rounded-lg shadow-md"
                         />
                     )}
                 </div>
@@ -97,14 +98,17 @@ export default async function NovelDetailPage({ params }: { params: Promise<{ id
                         <p className="text-sm text-gray-400 dark:text-slate-500 mt-2">
                             อัปเดตล่าสุด <RelativeTime iso={latestUpdate} />
                         </p>
-                    )}   
-                    <div style={{
-                        marginTop: 10,
-                    }}>
-                        <NovelStatus novelStatus={novel.status}/>
+                    )}
+                    <div className="flex flex-wrap gap-2 mt-2 pt-1">   {/* row + wrap + spacing between pills */}
+                        <NovelStatus novelStatus={novel.status} />
+                        {novel.tags?.map((t: { id: number; name: string; slug: string }) => (
+                            <span key={t.id} className="rounded-full px-3 py-1 text-sm border border-slate-400 bg-slate-100 text-slate-600 dark:border-slate-500 dark:bg-slate-800 dark:text-slate-300">
+                                {t.name}
+                            </span>
+                        ))}
                     </div>
                 </div>
-            </div>
+              </div>
 
             {/* ส่วนล่าง: เรื่องย่อ (แสดงเต็มความกว้าง) */}
             <div className="mb-12">

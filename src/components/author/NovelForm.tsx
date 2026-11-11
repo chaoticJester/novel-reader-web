@@ -1,4 +1,5 @@
 import StatusBadge from './StatusBadge'
+import { NOVEL_STATUSES, NOVEL_STATUS_STYLES } from '@/lib/novel-status'
 
 type Novel = {
     title: string
@@ -6,6 +7,8 @@ type Novel = {
     description: string | null
     cover_image_url: string | null
     publication_status: 'draft' | 'published'
+    status: string | null
+    tags: { name: string }[]
 }
 
 type Props = {
@@ -37,6 +40,27 @@ export default function NovelForm({ action, novel, submitLabel }: Props) {
                 <div>
                     <label htmlFor="author_name" className={labelClass}>ชื่อผู้แต่ง</label>
                     <input id="author_name" name="author_name" defaultValue={novel?.author_name ?? ''} placeholder="ชื่อที่ใช้เผยแพร่" className={inputClass} />
+                </div>
+
+                <div>
+                    <label htmlFor="status" className={labelClass}>สถานะเรื่อง</label>
+                    <select id="status" name="status" defaultValue={novel?.status ?? 'ongoing'} className={inputClass}>
+                        {NOVEL_STATUSES.map((s) => (
+                            <option key={s} value={s}>{NOVEL_STATUS_STYLES[s].label}</option>
+                        ))}
+                    </select>
+                </div>
+
+                <div>
+                    <label htmlFor="tags" className={labelClass}>แท็ก</label>
+                    <input
+                        id="tags"
+                        name="tags"
+                        defaultValue={novel?.tags.map((t) => t.name).join(', ') ?? ''}
+                        placeholder="แฟนตาซี, โรแมนติก, Slow Burn"
+                        className={inputClass}
+                    />
+                    <p className="mt-2 text-sm text-slate-500">คั่นแต่ละแท็กด้วยเครื่องหมายจุลภาค ( , ) · ลบแท็กออกเพื่อเอาออกจากนิยาย</p>
                 </div>
 
                 <div>
