@@ -15,3 +15,8 @@ export const NOVEL_STATUS_STYLES: Record<NovelStatusValue, { label: string; colo
 export function isNovelStatus(value: unknown): value is NovelStatusValue {
     return typeof value === 'string' && (NOVEL_STATUSES as readonly string[]).includes(value)
 }
+
+// "ongoing" -> "ยังไม่จบ", anything invalid (null, typo, ...) -> null
+export function getNovelStatusLabel(value: unknown): string | null {
+    return isNovelStatus(value) ? NOVEL_STATUS_STYLES[value].label : null
+}

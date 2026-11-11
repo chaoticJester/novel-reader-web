@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { cacheTag, cacheLife } from 'next/cache'
 import RelativeTime from '@/components/RelativeTime'
 import RecentChapters from '@/components/RecentChapters'
+import { getNovelStatusLabel } from '@/lib/novel-status'
 
 async function getNovels() {
     'use cache'
@@ -75,7 +76,7 @@ export default async function Home() {
                             href={`/novel/${novel.id}`}
                             className="shrink-0 w-24 sm:w-32 group"
                         >
-                            <div className="aspect-3/4 bg-slate-200 dark:bg-slate-700 rounded-lg overflow-hidden shadow-sm group-hover:shadow-md transition-shadow">
+                            <div className="relative aspect-3/4 bg-slate-200 dark:bg-slate-700 rounded-lg overflow-hidden shadow-sm group-hover:shadow-md transition-shadow">
                                 {novel.cover_image_url && (
                                     <img
                                         src={novel.cover_image_url}
@@ -83,6 +84,7 @@ export default async function Home() {
                                         className="w-full h-full object-cover"
                                     />
                                 )}
+                                {/* สถานะเรื่อง: มุมซ้ายบนของปก */}
                             </div>
                         </Link>
 
@@ -93,9 +95,14 @@ export default async function Home() {
                                     {novel.title}
                                 </h2>
                             </Link>
-                            <p className="text-sm text-gray-500 dark:text-slate-400 mb-3">
+                            <p className="text-sm text-gray-500 dark:text-slate-400 mb-1">
                                 {novel.author_name || 'ไม่ระบุผู้แต่ง'}
                             </p>
+                            {getNovelStatusLabel(novel.status) && (
+                                <p className="text-sm text-gray-500 dark:text-slate-500 mb-3">
+                                    สถานะ: {getNovelStatusLabel(novel.status)}
+                                </p>
+                            )}
                             {novel.latest_chapters[0] && (
                                 <p className="text-xs text-gray-400 dark:text-slate-500 -mt-2 mb-3">
                                     อัปเดตล่าสุด <RelativeTime iso={novel.latest_chapters[0].created_at} />
