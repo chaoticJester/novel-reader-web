@@ -120,3 +120,24 @@ body {
   height: auto;
   margin: 1.5rem auto;
 }
+
+/* ตัวแบ่งฉาก: บรรทัดที่มีแต่สัญลักษณ์ เช่น ◇◇◇ (class มาจาก remark-scene-break) */
+.reader-content .scene-break {
+  text-align: center;
+  letter-spacing: 0.5em;
+  padding-left: 0.5em;     /* letter-spacing เติมช่องว่างหลังตัวสุดท้ายด้วย ชดเชยให้ตรงกลางจริง */
+  margin: 2em 0;
+  color: var(--reader-muted);
+}
+
+/* *** หรือ --- ของ Markdown (<hr>) แสดงเป็นสัญลักษณ์กลางหน้าให้เข้าชุดกัน */
+.reader-content hr {
+  border: 0;
+  text-align: center;
+  margin: 2em 0;
+  color: var(--reader-muted);
+}
+
+.reader-content hr::after {
+  content: '◇ ◇ ◇';
+}
