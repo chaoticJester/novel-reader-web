@@ -145,3 +145,7 @@ body {
 .reader-content hr::after {
   content: '◇ ◇ ◇';
 }
+
+.reader-content .center-line {
+  text-align: center;
+}

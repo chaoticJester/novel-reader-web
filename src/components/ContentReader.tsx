@@ -4,6 +4,7 @@ import ReactMarkdown from 'react-markdown'
 import { useReaderSettings } from './ReaderSettingsProvider'
 import remarkRuby from '@/lib/remark-ruby'
 import remarkSceneBreak from '@/lib/remark-scene-break'
+import remarkCenter from '@/lib/remark-center'
 
 interface Font {
   key: string
@@ -28,7 +29,7 @@ export default function ContentReader({ content, fonts }: ContentReaderProps) {
       className={`reader-content ruby-text ${fontClassName} min-h-[40vh] whitespace-pre-wrap text-[var(--reader-foreground)] transition-all duration-300 ease-in-out leading-loose`}
       style={{ fontSize: `${fontSize}px` }}
     >
-      <ReactMarkdown remarkPlugins={[remarkRuby, remarkSceneBreak]}>{preservedContent}</ReactMarkdown>
+      <ReactMarkdown remarkPlugins={[remarkCenter, remarkRuby, remarkSceneBreak]}>{preservedContent}</ReactMarkdown>
     </div>
   )
 }
