@@ -125,15 +125,20 @@ export function parseChapterForm(
 ): ChapterInput {
     const title = optionalText(formData.get('title'))
     const content = chapterContent(formData.get('content'))
-    const rawChapterNumber = formData.get('chapter_number')
+    const rawChapterNumber = String(formData.get('chapter_number') ?? '').trim()
     const chapterNumber = Number(rawChapterNumber)
 
     if (!title) {
         throw new Error('กรุณากรอกชื่อตอน')
     }
 
-    if (!Number.isInteger(chapterNumber) || chapterNumber < 1) {
-        throw new Error('หมายเลขตอนต้องเป็นจำนวนเต็มตั้งแต่ 1 ขึ้นไป')
+    // Allows decimals such as 1.5 or 10.25 (up to 2 decimal places).
+    if (
+        !/^\d+(\.\d{1,2})?$/.test(rawChapterNumber) ||
+        !Number.isFinite(chapterNumber) ||
+        chapterNumber < 0
+    ) {
+        throw new Error('หมายเลขตอนต้องเป็น 0 ขึ้นไป และมีทศนิยมได้ไม่เกิน 2 ตำแหน่ง (เช่น 0, 1, 1.5, 10.25)')
     }
 
     if (!content) {

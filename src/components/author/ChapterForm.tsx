@@ -34,7 +34,7 @@ export default function ChapterForm({ action, chapter, submitLabel, uploadImageA
                 <div className="grid gap-5 sm:grid-cols-[140px_1fr]">
                     <div>
                         <label htmlFor="chapter_number" className={labelClass}>หมายเลขตอน</label>
-                        <input id="chapter_number" name="chapter_number" type="number" min="1" step="1" required defaultValue={chapter?.chapter_number ?? ''} className={inputClass} />
+                        <input id="chapter_number" name="chapter_number" type="number" min="0" step="0.01" inputMode="decimal" required defaultValue={chapter?.chapter_number ?? ''} className={inputClass} />
                     </div>
                     <div>
                         <label htmlFor="title" className={labelClass}>ชื่อตอน</label>
