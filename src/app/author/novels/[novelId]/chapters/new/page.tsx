@@ -1,6 +1,6 @@
 import ChapterForm from '@/components/author/ChapterForm'
 import AuthorShell from '@/components/author/AuthorShell'
-import { createChapter } from '../../../../actions'
+import { createChapter, uploadChapterImageAction } from '../../../../actions'
 
 export const instant = false
 
@@ -16,6 +16,7 @@ export default async function NewChapterPage({
             <ChapterForm
                 action={createChapter.bind(null, novelId)}
                 submitLabel="สร้างและเผยแพร่"
+                uploadImageAction={uploadChapterImageAction.bind(null, novelId)}
             />
         </AuthorShell>
     )

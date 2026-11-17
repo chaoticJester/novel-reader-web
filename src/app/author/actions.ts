@@ -15,6 +15,10 @@ import {
     removeManagedCover,
     uploadCover,
 } from '@/lib/cover-storage'
+import {
+    uploadChapterImage,
+    validateChapterImage,
+} from '@/lib/chapter-image-storage'
 
 // Make the novel's tags exactly match `tags`:
 // 1. create any tags that don't exist yet
@@ -251,4 +255,33 @@ export async function deleteChapter(
     updateTag(`chapter-${chapterId}`)
 
     redirect(`/author/novels/${novelId}/edit`)
+}
+
+export type ChapterImageUploadResult =
+    | { ok: true; url: string }
+    | { ok: false; error: string }
+
+// Called from the chapter editor; returns a result instead of throwing so the
+// message reaches the client (thrown errors are redacted in production).
+export async function uploadChapterImageAction(
+    novelId: string,
+    formData: FormData,
+): Promise<ChapterImageUploadResult> {
+    await requireAuthorSession()
+
+    const file = formData.get('image')
+    const validationError = validateChapterImage(file)
+    if (validationError) {
+        return { ok: false, error: validationError }
+    }
+
+    try {
+        const url = await uploadChapterImage(novelId, file as File)
+        return { ok: true, url }
+    } catch (error) {
+        return {
+            ok: false,
+            error: error instanceof Error ? error.message : 'อัปโหลดรูปประกอบไม่สำเร็จ',
+        }
+    }
 }

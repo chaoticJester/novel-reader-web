@@ -109,11 +109,22 @@ export function parseTagNames(formData: FormData): TagInput[] {
     return [...bySlug.values()]
 }
 
+// ไม่ใช้ trim() เต็มๆ เพราะจะตัดย่อหน้า (เว้นวรรค/Tab) ของบรรทัดแรกทิ้ง
+// ตัดแค่บรรทัดว่างด้านบนและช่องว่างท้ายเนื้อหา
+function chapterContent(value: FormDataEntryValue | null) {
+    if (typeof value !== 'string') {
+        return null
+    }
+
+    const content = value.replace(/^(?:[ \t]*\r?\n)+/, '').trimEnd()
+    return content.trim() ? content : null
+}
+
 export function parseChapterForm(
     formData: FormData,
 ): ChapterInput {
     const title = optionalText(formData.get('title'))
-    const content = optionalText(formData.get('content'))
+    const content = chapterContent(formData.get('content'))
     const rawChapterNumber = formData.get('chapter_number')
     const chapterNumber = Number(rawChapterNumber)
 

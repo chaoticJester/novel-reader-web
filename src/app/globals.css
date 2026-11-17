@@ -90,3 +90,25 @@ body {
 .dark .chapter-list-scrollbar::-webkit-scrollbar-thumb:hover {
     background-color: #64748b;
 }
+
+.reader-content ruby {
+  ruby-position: over;
+  ruby-align: center;
+  font-weight: 600;        /* คำหลัก (ตัวล่าง) หนาขึ้นเล็กน้อย */
+}
+
+.reader-content rt {
+  font-weight: 400;        /* ตัวบนคงน้ำหนักปกติ */
+  font-size: 0.60em;
+  line-height: 1;
+  padding-bottom: 0.3em;   /* ดันขึ้นให้พ้นสระบน/วรรณยุกต์ */
+  opacity: 0.85;
+}
+
+/* รูปประกอบในเนื้อหาตอน */
+.reader-content img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 1.5rem auto;
+}

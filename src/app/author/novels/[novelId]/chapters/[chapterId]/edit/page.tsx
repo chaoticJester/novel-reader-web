@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation'
 import ChapterForm from '@/components/author/ChapterForm'
 import AuthorShell from '@/components/author/AuthorShell'
 import { supabaseAdmin } from '@/lib/supabase-admin'
-import { updateChapter } from '../../../../../actions'
+import { updateChapter, uploadChapterImageAction } from '../../../../../actions'
 
 export const instant = false
 
@@ -37,6 +37,7 @@ export default async function EditChapterPage({
                     chapterId,
                 )}
                 submitLabel="บันทึกและเผยแพร่"
+                uploadImageAction={uploadChapterImageAction.bind(null, novelId)}
             />
         </AuthorShell>
     )

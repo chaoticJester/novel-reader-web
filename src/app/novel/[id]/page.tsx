@@ -1,10 +1,10 @@
 import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
-import Image from 'next/image'
 import { cacheTag, cacheLife } from 'next/cache'
 import RelativeTime from '@/components/RelativeTime'
 import ChapterList from '@/components/ChapterList'
 import NovelStatus from '@/components/NovelStatus'
+import RubyText from '@/components/RubyText'
 
 async function getNovel(id: string) {
     'use cache'
@@ -114,8 +114,8 @@ export default async function NovelDetailPage({ params }: { params: Promise<{ id
             <div className="mb-12">
                 <div className="bg-slate-50 dark:bg-slate-800/60 p-6 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
                     <h3 className="text-black dark:text-slate-100 text-xl font-semibold mb-4 border-b dark:border-slate-700 pb-2">เรื่องย่อ</h3>
-                    <p className="text-gray-700 dark:text-slate-300 whitespace-pre-wrap leading-relaxed">
-                        {novel.description || 'ยังไม่มีเรื่องย่อ'}
+                    <p className="ruby-text text-gray-700 dark:text-slate-300 whitespace-pre-wrap leading-relaxed">
+                        {novel.description ? <RubyText text={novel.description} /> : 'ยังไม่มีเรื่องย่อ'}
                     </p>
                 </div>
             </div>

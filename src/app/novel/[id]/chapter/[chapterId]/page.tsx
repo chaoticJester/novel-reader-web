@@ -14,7 +14,7 @@ import { cacheTag, cacheLife } from 'next/cache'
 
 // ฟอนต์ทั้งหมดต้องถูกเรียกที่ระดับ module (ข้อกำหนดของ next/font) แล้วส่ง className ลงไป
 const sarabun = Sarabun({ subsets: ['thai'], weight: ['400', '700'], display: 'swap' })
-const notoSansThai = Noto_Sans_Thai({ subsets: ['thai'], weight: ['400', '700'], display: 'swap' })
+const notoSansThai = Noto_Sans_Thai({ subsets: ['thai'], display: 'swap' })
 const notoSerifThai = Noto_Serif_Thai({ subsets: ['thai'], weight: ['400', '700'], display: 'swap' })
 const ibmPlexSansThai = IBM_Plex_Sans_Thai({ subsets: ['thai'], weight: ['400', '700'], display: 'swap' })
 const baiJamjuree = Bai_Jamjuree({ subsets: ['thai'], weight: ['400', '700'], display: 'swap' })
