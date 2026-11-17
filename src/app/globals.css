@@ -103,6 +103,9 @@ body {
 .ruby-text .rb-inner,
 .ruby-text .rt-inner {
   display: inline-block;
+  /* inline-block สร้างกล่องตาม line-height ที่สืบทอดมา (leading-loose = 2) ทำให้กล่องคำหลักสูงเกิน
+     และดันตัวบนลอยขึ้นไปครึ่งบรรทัด — ตั้งเป็น 1 ให้กล่องพอดีตัวอักษร (ระยะบรรทัดยังเป็นของ parent) */
+  line-height: 1;
 }
 
 .ruby-text rt {
