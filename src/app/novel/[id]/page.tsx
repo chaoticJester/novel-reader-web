@@ -114,7 +114,7 @@ export default async function NovelDetailPage({ params }: { params: Promise<{ id
             <div className="mb-12">
                 <div className="bg-slate-50 dark:bg-slate-800/60 p-6 rounded-xl border border-slate-100 dark:border-slate-700 shadow-sm">
                     <h3 className="text-black dark:text-slate-100 text-xl font-semibold mb-4 border-b dark:border-slate-700 pb-2">เรื่องย่อ</h3>
-                    <p className="ruby-text text-gray-700 dark:text-slate-300 whitespace-pre-wrap leading-relaxed">
+                    <p className="ruby-text text-gray-700 dark:text-slate-300 whitespace-pre-wrap leading-loose">
                         {novel.description ? <RubyText text={novel.description} /> : 'ยังไม่มีเรื่องย่อ'}
                     </p>
                 </div>

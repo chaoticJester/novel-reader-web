@@ -1,8 +1,8 @@
 import { visit, SKIP } from 'unist-util-visit'
 import type { Root, Text, PhrasingContent } from 'mdast'
 
-// จับ {คำหลัก|ตัวบน}  — ห้ามมี { } | ในคำหลัก, ห้ามมี { } ในตัวบน
-const RUBY_RE = /\{([^{}|]+)\|([^{}]+)\}/g
+// จับ {คำหลัก|ตัวบน}  — ห้ามมี { } | ในคำหลัก, ห้ามมี { } ในตัวบน, และห้ามข้ามบรรทัด
+export const RUBY_RE = /\{([^{}|\n]+)\|([^{}\n]+)\}/g
 
 export default function remarkRuby() {
   return (tree: Root) => {
@@ -31,10 +31,19 @@ export default function remarkRuby() {
           value: base,
           data: {
             hName: 'ruby',
+            // ห่อคำหลักและตัวบนด้วย span (inline-block ใน CSS) กันเบราว์เซอร์กระจายตัวอักษร
+            // ซึ่งทำให้สระ/วรรณยุกต์ไทยหลุดจากพยัญชนะ (เจอใน Safari iOS)
             hChildren: [
-              { type: 'text', value: base },
+              { type: 'element', tagName: 'span', properties: { className: ['rb-inner'] }, children: [{ type: 'text', value: base }] },
               { type: 'element', tagName: 'rp', properties: {}, children: [{ type: 'text', value: '(' }] },
-              { type: 'element', tagName: 'rt', properties: {}, children: [{ type: 'text', value: ruby }] },
+              {
+                type: 'element',
+                tagName: 'rt',
+                properties: {},
+                children: [
+                  { type: 'element', tagName: 'span', properties: { className: ['rt-inner'] }, children: [{ type: 'text', value: ruby }] },
+                ],
+              },
               { type: 'element', tagName: 'rp', properties: {}, children: [{ type: 'text', value: ')' }] },
             ],
           },

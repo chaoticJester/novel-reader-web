@@ -1,4 +1,4 @@
-const RUBY_RE = /\{([^{}|]+)\|([^{}]+)\}/g
+import { RUBY_RE } from '@/lib/remark-ruby'
 
 export default function RubyText({ text }: { text: string }) {
   const parts: React.ReactNode[] = []
@@ -9,7 +9,12 @@ export default function RubyText({ text }: { text: string }) {
     if (start > last) parts.push(text.slice(last, start))
     parts.push(
       <ruby key={start}>
-        {m[1]}<rp>(</rp><rt>{m[2]}</rt><rp>)</rp>
+        <span className="rb-inner">{m[1]}</span>
+        <rp>(</rp>
+        <rt>
+          <span className="rt-inner">{m[2]}</span>
+        </rt>
+        <rp>)</rp>
       </ruby>
     )
     last = start + m[0].length

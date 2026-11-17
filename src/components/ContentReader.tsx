@@ -24,7 +24,7 @@ export default function ContentReader({ content, fonts }: ContentReaderProps) {
 
   return (
     <div
-      className={`reader-content ${fontClassName} min-h-[40vh] whitespace-pre-wrap text-[var(--reader-foreground)] transition-all duration-300 ease-in-out leading-loose`}
+      className={`reader-content ruby-text ${fontClassName} min-h-[40vh] whitespace-pre-wrap text-[var(--reader-foreground)] transition-all duration-300 ease-in-out leading-loose`}
       style={{ fontSize: `${fontSize}px` }}
     >
       <ReactMarkdown remarkPlugins={[remarkRuby]}>{preservedContent}</ReactMarkdown>
