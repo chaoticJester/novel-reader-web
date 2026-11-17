@@ -92,27 +92,28 @@ body {
 }
 
 /* ruby/furigana — ใช้ได้ทุกที่ที่ใส่ class ruby-text (เนื้อหาตอน, เรื่องย่อ) */
+/* ไม่ใช้ layout ruby ของเบราว์เซอร์ เพราะแต่ละเบราว์เซอร์วางตัวบนต่างกันมาก
+   (Chromium วางเหนือ ascent ของฟอนต์ ซึ่งฟอนต์ไทยสูงมาก ตัวบนจึงลอยห่าง; Safari/Chrome เก่ากระจายตัวอักษรจนสระหลุด)
+   จัดเองด้วย flex แนวตั้งแทน: คำหลักอยู่ล่าง ตัวบนซ้อนอยู่ด้านบน ได้ผลเหมือนกันทุกเบราว์เซอร์และทุกฟอนต์ */
 .ruby-text ruby {
-  ruby-position: over;
-  ruby-align: center;
-  font-weight: 600;        /* คำหลัก (ตัวล่าง) หนาขึ้นเล็กน้อย */
+  display: inline-flex;
+  flex-direction: column-reverse; /* ลำดับใน DOM คือ คำหลัก → rt จึงกลับด้านให้ rt ขึ้นไปอยู่บน */
+  align-items: center;            /* จัดกลางแนวนอน ไม่ว่าคำไหนยาวกว่า */
+  baseline-source: last;          /* ให้ baseline มาจากคำหลัก (ตัวล่าง) จะได้อยู่ระดับเดียวกับข้อความรอบข้าง */
+  line-height: 1;                 /* กล่องพอดีตัวอักษร ระยะบรรทัดยังเป็นของย่อหน้าเหมือนเดิม */
+  font-weight: 600;               /* คำหลัก (ตัวล่าง) หนาขึ้นเล็กน้อย */
 }
 
-/* Safari iOS / Chrome รุ่นเก่าไม่รองรับ ruby-align และจะกระจายตัวอักษรให้เต็มความกว้าง
-   ทำให้สระ/วรรณยุกต์ไทยหลุด — inline-block ทำให้ข้อความข้างในเป็นก้อนเดียว ไม่ถูกแทรกช่องว่าง */
-.ruby-text .rb-inner,
-.ruby-text .rt-inner {
-  display: inline-block;
-  /* inline-block สร้างกล่องตาม line-height ที่สืบทอดมา (leading-loose = 2) ทำให้กล่องคำหลักสูงเกิน
-     และดันตัวบนลอยขึ้นไปครึ่งบรรทัด — ตั้งเป็น 1 ให้กล่องพอดีตัวอักษร (ระยะบรรทัดยังเป็นของ parent) */
-  line-height: 1;
+.ruby-text rp {
+  display: none;                  /* วงเล็บสำรอง ไม่ต้องแสดงเพราะเราจัด layout เอง */
 }
 
 .ruby-text rt {
-  font-weight: 400;        /* ตัวบนคงน้ำหนักปกติ */
-  font-size: 0.60em;
+  display: block;
+  font-weight: 400;               /* ตัวบนคงน้ำหนักปกติ */
+  font-size: 0.6em;
   line-height: 1;
-  padding-bottom: 0.3em;   /* ดันขึ้นให้พ้นสระบน/วรรณยุกต์ */
+  padding-bottom: 0.5em;          /* เว้นให้พ้นสระบน/วรรณยุกต์ซ้อน (ทดสอบกับ "ทั้งนั้น" ทั้ง 6 ฟอนต์) */
   opacity: 0.85;
 }
 
