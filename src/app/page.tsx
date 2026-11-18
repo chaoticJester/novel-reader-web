@@ -4,6 +4,7 @@ import { cacheTag, cacheLife } from 'next/cache'
 import RelativeTime from '@/components/RelativeTime'
 import RecentChapters from '@/components/RecentChapters'
 import { getNovelStatusLabel } from '@/lib/novel-status'
+import Navbar, { type NavigationItem } from "@/components/Navbar";
 
 async function getNovels() {
     'use cache'
@@ -49,6 +50,10 @@ async function getNovels() {
     return { data: novels, error }
 }
 
+const menuItems: NavigationItem[] = [
+  { href: "/", label: "หน้าหลัก" },
+];
+
 export default async function Home() {
     // ดึงข้อมูลนิยาย เรียงตามตอนที่อัปเดตล่าสุด
     const { data: novels, error } = await getNovels()
@@ -58,8 +63,10 @@ export default async function Home() {
         return <div className="p-8 text-red-500">เกิดข้อผิดพลาดในการโหลดข้อมูล: {error.message}</div>
     }
 
-    return (
-        <main className="container mx-auto p-8">
+  return (
+      <>
+        <Navbar items={menuItems}></Navbar>
+        <div className="container mx-auto p-8">
             <div className="mb-8">
                 <h1 className="text-3xl font-bold">นิยายแปลอัปเดตล่าสุด</h1>
             </div>
@@ -121,6 +128,7 @@ export default async function Home() {
             {novels?.length === 0 && (
                 <p className="text-gray-500 text-center mt-10">ยังไม่มีข้อมูลนิยายในระบบ</p>
             )}
-        </main>
+        </div>
+      </>
     );
 }

@@ -1,10 +1,14 @@
 import { supabase } from '@/lib/supabase'
-import Link from 'next/link'
 import { cacheTag, cacheLife } from 'next/cache'
 import RelativeTime from '@/components/RelativeTime'
 import ChapterList from '@/components/ChapterList'
 import NovelStatus from '@/components/NovelStatus'
 import RubyText from '@/components/RubyText'
+import Navbar, { type NavigationItem } from "@/components/Navbar";
+
+const menuItems: NavigationItem[] = [
+  { href: "/", label: "หน้าหลัก" },
+];
 
 async function getNovel(id: string) {
     'use cache'
@@ -63,13 +67,10 @@ export default async function NovelDetailPage({ params }: { params: Promise<{ id
         null,
     )
 
-    return (
+  return (
+    <>
+        <Navbar items={menuItems}></Navbar>
         <main className="container mx-auto p-8 max-w-4xl">
-            <div className="mb-6">
-                <Link href="/" className="text-blue-500 hover:underline dark:text-blue-400 inline-block">
-                    &larr; กลับหน้าหลัก
-                </Link>
-            </div>
 
             {/* ส่วนบน: รูปหน้าปก (ซ้าย) และ ชื่อเรื่อง/ผู้แต่ง (ขวา จัดกึ่งกลาง) */}
             <div className="flex flex-col md:flex-row gap-8 mb-8 items-center md:items-start">
@@ -132,5 +133,6 @@ export default async function NovelDetailPage({ params }: { params: Promise<{ id
                 </div>
             )}
         </main>
+    </>
     )
 }

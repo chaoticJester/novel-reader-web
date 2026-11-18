@@ -7,13 +7,16 @@ export const metadata: Metadata = {
     description: "เว็บอ่านนิยายออนไลน์โดยหนูท่อ มุฮ่ะฮ่ะฮ่ะฮา",
 };
 
+
 export default function RootLayout({ children }: LayoutProps<"/">) {
     return (
         <html
             lang="th"
             className="dark h-full antialiased"
         >
-            <body className={`min-h-full flex flex-col`}>{children}</body>
+            <body className={`min-h-full flex flex-col`}>
+                {children}
+            </body>
         </html>
     );
 }
