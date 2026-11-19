@@ -5,7 +5,9 @@ import Link from 'next/link'
 import ReaderSettings from '@/components/ReaderSettings'
 import { useReaderSettings } from '@/components/ReaderSettingsProvider'
 import TableOfContentsShelf from '@/components/TableOfContentsShelf'
-import { getReadChapters, setChapterRead } from '@/lib/read-chapters'
+import { addPendingRead, getReadChapters, setChapterRead } from '@/lib/read-chapters'
+import { markChapterRead } from '@/lib/chapter-reads-actions'
+
 
 export interface ReaderChapter {
     id: string
@@ -81,19 +83,22 @@ export default function ReaderNavigation({
         setProgress((current) => (Math.abs(current - next) > 0.001 ? next : current))
         if (next >= 1 - 1 / Math.max(1, document.documentElement.scrollHeight - window.innerHeight) && completedChapterRef.current !== chapterId) {
             completedChapterRef.current = chapterId
-            if (!getReadChapters(novelId).includes(chapterId)) setChapterRead(novelId, chapterId, true)
+            if (!getReadChapters(novelId).includes(chapterId)) {
+                setChapterRead(novelId, chapterId, true)
+                markChapterRead(chapterId)
+                    .then((saved) => {
+                        if (!saved) addPendingRead(chapterId)
+                    })
+                    .catch(() => addPendingRead(chapterId))
+            }
         }
     }, [getProgress, novelId, chapterId])
 
-    // เปลี่ยนตอน: แสดงแถบเมนู ปิดพาเนล และคำนวณความคืบหน้าใหม่
     useEffect(() => {
-        completedChapterRef.current = null
-        setIsNavigationVisible(true)
-        setIsSettingsOpen(false)
-        setIsTocOpen(false)
         lastScrollYRef.current = window.scrollY
-        applyProgress()
-    }, [applyProgress, chapterId])
+        const frame = window.requestAnimationFrame(applyProgress)
+        return () => window.cancelAnimationFrame(frame)
+    }, [applyProgress])
 
     useEffect(() => {
         const updateFromScroll = () => {

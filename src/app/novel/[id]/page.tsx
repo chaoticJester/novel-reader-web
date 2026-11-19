@@ -6,6 +6,8 @@ import ChapterList from '@/components/ChapterList'
 import NovelStatus from '@/components/NovelStatus'
 import RubyText from '@/components/RubyText'
 import Navbar, { type NavigationItem } from "@/components/Navbar";
+import { Suspense } from 'react'
+import LibraryButton from '@/components/LibraryButton'
 
 const menuItems: NavigationItem[] = [
   { href: "/", label: "หน้าหลัก" },
@@ -113,25 +115,29 @@ export default async function NovelDetailPage({ params }: { params: Promise<{ id
                             ))}
                         </div>
 
-                        {/* ปุ่มเริ่มอ่าน — มือถือเต็มความกว้าง กดง่ายด้วยนิ้วโป้ง · คอมเป็นปุ่มขนาดปกติ */}
-                        {firstChapter && (
-                            <div className="mt-5 grid grid-cols-2 gap-2 sm:flex sm:justify-center md:justify-start">
+                        {/* ปุ่มเริ่มอ่าน + ชั้นหนังสือ — มือถือเต็มความกว้าง · คอมเป็นปุ่มขนาดปกติ */}
+                        <div className="mt-5 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:justify-center md:justify-start">
+                            {firstChapter && (
                                 <Link
                                     href={`/novel/${novel.id}/chapter/${firstChapter.id}`}
                                     className={`inline-flex h-11 items-center justify-center rounded-lg bg-blue-500 px-5 text-sm font-semibold text-white transition-colors hover:bg-blue-600 ${latestChapter ? '' : 'col-span-2'}`}
                                 >
                                     อ่านตอนแรก
                                 </Link>
-                                {latestChapter && (
-                                    <Link
-                                        href={`/novel/${novel.id}/chapter/${latestChapter.id}`}
-                                        className="inline-flex h-11 items-center justify-center rounded-lg border border-slate-300 px-5 text-sm font-semibold text-slate-700 transition-colors hover:border-blue-500 dark:border-slate-600 dark:text-slate-200 dark:hover:border-blue-500"
-                                    >
-                                        ตอนล่าสุด
-                                    </Link>
-                                )}
-                            </div>
-                        )}
+                            )}
+                            {latestChapter && (
+                                <Link
+                                    href={`/novel/${novel.id}/chapter/${latestChapter.id}`}
+                                    className="inline-flex h-11 items-center justify-center rounded-lg border border-slate-300 px-5 text-sm font-semibold text-slate-700 transition-colors hover:border-blue-500 dark:border-slate-600 dark:text-slate-200 dark:hover:border-blue-500"
+                                >
+                                    ตอนล่าสุด
+                                </Link>
+                            )}
+                            {/* อ่าน cookie จึงต้องอยู่ใน Suspense ไม่อย่างนั้นหน้านิยายจะเสีย static */}
+                            <Suspense fallback={<div className="col-span-2 h-11 animate-pulse rounded-lg bg-slate-800 sm:w-48" />}>
+                                <LibraryButton novelId={novel.id} className="col-span-2 sm:w-auto" />
+                            </Suspense>
+                        </div>
                     </div>
                 </div>
 
