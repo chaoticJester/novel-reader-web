@@ -37,9 +37,11 @@ interface ReaderNavigationProps {
     chapters: ReaderChapter[]
     fonts: ReaderFont[]
     children: ReactNode
+    comments?: ReactNode // แสดงต่อจากส่วนอ่าน พื้นดำเสมอ และแตะแล้วไม่เปิดเมนู
 }
 
 const SCROLL_THRESHOLD = 12
+const COMMENTS_VISIBLE_LIMIT = 0.05 // สัดส่วนของความสูงจอ
 
 const isInteractiveTarget = (target: EventTarget | null) =>
     target instanceof Element && Boolean(target.closest('a, button, input, textarea, select, label, [role="button"]'))
@@ -55,6 +57,7 @@ export default function ReaderNavigation({
     chapters,
     fonts,
     children,
+    comments,
 }: ReaderNavigationProps) {
     const { theme } = useReaderSettings()
     const [isNavigationVisible, setIsNavigationVisible] = useState(true)
@@ -64,24 +67,32 @@ export default function ReaderNavigation({
     const completedChapterRef = useRef<string | null>(null)
     const lastScrollYRef = useRef(0)
     const animationFrameRef = useRef<number | null>(null)
+    const readerRef = useRef<HTMLDivElement>(null) // ส่วนอ่าน: ใช้วัดว่าอ่านถึงท้ายตอนหรือยัง
+    const commentsRef = useRef<HTMLDivElement>(null) // ส่วนคอมเมนต์: ใช้เช็กว่าโผล่บนจอเยอะแค่ไหน
 
     const panelIsOpen = isSettingsOpen || isTocOpen
     const controlsVisible = isNavigationVisible || panelIsOpen
 
-    const getProgress = useCallback(() => {
-        const doc = document.documentElement
-        const scrollTop = window.scrollY || doc.scrollTop || document.body.scrollTop || 0
-        const scrollHeight = Math.max(doc.scrollHeight, document.body.scrollHeight)
-        const viewport = window.innerHeight || doc.clientHeight
-        const maxScroll = scrollHeight - viewport
-        if (maxScroll <= 0) return 1
-        return Math.min(1, Math.max(0, scrollTop / maxScroll))
+    // วัดจากปลาย "ส่วนอ่าน" ไม่ใช่ปลายหน้า: คอมเมนต์ด้านล่างจะได้ไม่ถูกนับเป็นเนื้อหาตอน
+    const measure = useCallback(() => {
+        const reader = readerRef.current
+        if (!reader) return { progress: 0, reachedEnd: false }
+
+        const readerBottom = reader.getBoundingClientRect().bottom + window.scrollY
+        const maxScroll = readerBottom - window.innerHeight
+        if (maxScroll <= 0) return { progress: 1, reachedEnd: true } // ตอนสั้นกว่าจอ
+
+        const scrollY = window.scrollY
+        return {
+            progress: Math.min(1, Math.max(0, scrollY / maxScroll)),
+            reachedEnd: scrollY >= maxScroll - 2, // เผื่อ 2px สำหรับค่าทศนิยมของ scroll
+        }
     }, [])
 
     const applyProgress = useCallback(() => {
-        const next = getProgress()
+        const { progress: next, reachedEnd } = measure()
         setProgress((current) => (Math.abs(current - next) > 0.001 ? next : current))
-        if (next >= 1 - 1 / Math.max(1, document.documentElement.scrollHeight - window.innerHeight) && completedChapterRef.current !== chapterId) {
+        if (reachedEnd && completedChapterRef.current !== chapterId) {
             completedChapterRef.current = chapterId
             if (!getReadChapters(novelId).includes(chapterId)) {
                 setChapterRead(novelId, chapterId, true)
@@ -92,7 +103,7 @@ export default function ReaderNavigation({
                     .catch(() => addPendingRead(chapterId))
             }
         }
-    }, [getProgress, novelId, chapterId])
+    }, [measure, novelId, chapterId])
 
     useEffect(() => {
         lastScrollYRef.current = window.scrollY
@@ -143,8 +154,18 @@ export default function ReaderNavigation({
         setIsNavigationVisible((visible) => !visible)
     }
 
+    // ส่วนคอมเมนต์กินพื้นที่จอเกิน 5% = ผู้ใช้กำลังจะอ่าน/เขียนคอมเมนต์ แตะเนื้อหาแล้วไม่เปิดเมนู
+    const commentsTakeScreen = () => {
+        const comments = commentsRef.current
+        if (!comments) return false
+        const rect = comments.getBoundingClientRect()
+        const visibleHeight = Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0)
+        return visibleHeight > window.innerHeight * COMMENTS_VISIBLE_LIMIT
+    }
+
     const handleReaderClick = (event: MouseEvent<HTMLDivElement>) => {
         if (isInteractiveTarget(event.target)) return
+        if (commentsTakeScreen()) return
         toggleNavigation()
     }
 
@@ -155,6 +176,40 @@ export default function ReaderNavigation({
         'eye-care': 'reader-eye-care',
         dark: 'reader-dark',
     }[theme]
+
+    const endNavButton =
+        'inline-flex h-12 items-center justify-center rounded-lg px-4 text-sm font-semibold transition-colors'
+
+    const chapterEndNav = (
+        <nav aria-label="เปลี่ยนตอน" className="mt-12 grid grid-cols-2 gap-3 border-t border-[var(--reader-border)] pt-8">
+            {previousChapter ? (
+                <Link
+                    href={`/novel/${novelId}/chapter/${previousChapter.id}`}
+                    className={`${endNavButton} border border-[var(--reader-border)] hover:bg-black/5 dark:hover:bg-white/5`}
+                >
+                    ← ตอนก่อนหน้า
+                </Link>
+            ) : (
+                <span /> // เว้นช่องซ้ายไว้ ปุ่มตอนถัดไปจะได้อยู่ขวาเสมอ
+            )}
+
+            {nextChapter ? (
+                <Link
+                    href={`/novel/${novelId}/chapter/${nextChapter.id}`}
+                    className={`${endNavButton} bg-blue-500 text-white hover:bg-blue-600`}
+                >
+                    ตอนถัดไป →
+                </Link>
+            ) : (
+                <Link
+                    href={`/novel/${novelId}`}
+                    className={`${endNavButton} border border-[var(--reader-border)] hover:bg-black/5 dark:hover:bg-white/5`}
+                >
+                    ตอนล่าสุดแล้ว · สารบัญ
+                </Link>
+            )}
+        </nav>
+    )
 
     return (
         <div className="min-h-screen" data-novel-id={novelId} data-chapter-id={chapterId}>
@@ -185,10 +240,22 @@ export default function ReaderNavigation({
             </header>
 
             <div className={`${readerThemeClass} min-h-screen bg-[var(--reader-background)] text-[var(--reader-foreground)] transition-colors`}>
-                <div className="mx-auto max-w-3xl touch-manipulation px-5 pb-24 pt-20 md:px-8 md:pb-28 md:pt-28" onClick={handleReaderClick}>
+                <div
+                    ref={readerRef}
+                    className="mx-auto max-w-3xl touch-manipulation px-5 pb-16 pt-20 md:px-8 md:pb-20 md:pt-28"
+                    onClick={handleReaderClick}
+                >
                     {children}
+                    {chapterEndNav}
                 </div>
             </div>
+
+            {/* พี่น้องกับส่วนอ่าน ไม่ได้อยู่ข้างใน: แตะตรงนี้ event จึงไม่ไปถึง handleReaderClick */}
+            {comments && (
+                <div ref={commentsRef} className="bg-black text-slate-100">
+                    <div className="mx-auto max-w-3xl px-5 pb-28 pt-10 md:px-8">{comments}</div>
+                </div>
+            )}
 
             <footer className={`fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white/95 shadow-sm backdrop-blur transition-all duration-300 dark:border-slate-800 dark:bg-black/95 ${barVisibilityClass}`} style={{ transform: controlsVisible ? undefined : 'translateY(100%)' }}>
                 <div className="mx-auto box-content flex h-16 max-w-5xl items-center gap-3 px-4 pb-[env(safe-area-inset-bottom)] md:px-8">

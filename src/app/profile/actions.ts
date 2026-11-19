@@ -1,11 +1,12 @@
 "use server";
 
-import { refresh } from "next/cache";
+import { refresh, updateTag } from 'next/cache'
 import { getCurrentUser } from "@/lib/current-user";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { validateDisplayName } from "@/lib/display-name";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 import { removeManagedAvatar, resizeAvatar, uploadAvatar, validateAvatarFile } from '@/lib/avatar-storage'
+import { ALL_COMMENTS_TAG } from '@/lib/comments'
 
 export type DisplayNameState = {
   error?: string;
@@ -56,7 +57,8 @@ export async function updateDisplayName(
   }
 
   // ให้ client โหลดหน้าใหม่ Navbar จะได้โชว์ชื่อใหม่ทันที
-  refresh();
+  updateTag(ALL_COMMENTS_TAG) // คอมเมนต์ทุกที่ที่ cache ชื่อ/รูปเก่าไว้
+  refresh()
   return { success: true };
 }
 
@@ -110,7 +112,8 @@ export async function updateAvatar(
   // 4) สำเร็จแล้วค่อยลบไฟล์เก่า
   await removeManagedAvatar(user.id, user.avatarUrl);
 
-  refresh();
+  updateTag(ALL_COMMENTS_TAG) // คอมเมนต์ทุกที่ที่ cache ชื่อ/รูปเก่าไว้
+  refresh()
   return { success: true };
 }
 
@@ -128,5 +131,6 @@ export async function removeAvatar(): Promise<void> {
   }
 
   await removeManagedAvatar(user.id, user.avatarUrl);
-  refresh();
+  updateTag(ALL_COMMENTS_TAG) // คอมเมนต์ทุกที่ที่ cache ชื่อ/รูปเก่าไว้
+  refresh()
 }

@@ -11,6 +11,8 @@ import ContentReader from "@/components/ContentReader";
 import { ReaderSettingsProvider } from "@/components/ReaderSettingsProvider";
 import ReaderNavigation from "@/components/ReaderNavigation";
 import { cacheTag, cacheLife } from "next/cache";
+import { Suspense } from 'react'
+import CommentSection from '@/components/comments/CommentSection'
 
 // ฟอนต์ทั้งหมดต้องถูกเรียกที่ระดับ module (ข้อกำหนดของ next/font) แล้วส่ง className ลงไป
 const sarabun = Sarabun({
@@ -179,8 +181,13 @@ export default async function ChapterReadingPage({
         nextChapter={nextChapter ?? null}
         chapters={allChapters}
         fonts={FONTS}
+        comments={
+          <Suspense fallback={<div className="h-40 animate-pulse rounded-xl bg-white/5" />}>
+            <CommentSection target={{ novelId: id, chapterId }} className="" />
+          </Suspense>
+        }
       >
-        <main className="min-h-screen transition-colors">
+        <main className="transition-colors">
           <div className="mb-6 border-b border-[var(--reader-border)] pb-5 text-center md:mb-10 md:pb-6">
             <h1 className="mb-3 text-xl font-bold leading-snug sm:text-2xl md:mb-4 text-[var(--reader-foreground)] md:text-3xl">
               ตอนที่ {chapter.chapter_number}: {chapter.title}
@@ -193,6 +200,7 @@ export default async function ChapterReadingPage({
 
           <ContentReader content={chapter.content} fonts={FONTS} />
         </main>
+          
       </ReaderNavigation>
     </ReaderSettingsProvider>
   );
