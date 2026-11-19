@@ -156,7 +156,7 @@ export default function Navbar({ items }: { items: NavigationItem[] }) {
       </div>
       <div className="flex items-center gap-5">
         <SearchBar />
-        <button className="whitespace-nowrap rounded-lg px-4 py-2 text-12px font-medium text-white bg-gray-900 hover:bg-gray-600">Sign in</button>
+        <button className="whitespace-nowrap rounded-lg px-4 py-2 text-12px font-medium text-white bg-gray-900 hover:bg-gray-600">ลงชื่อเข้าใช้</button>
       </div>
     </nav>
   );
