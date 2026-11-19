@@ -4,7 +4,6 @@ import DeleteButton from '@/components/author/DeleteButton'
 import StatusBadge from '@/components/author/StatusBadge'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { deleteNovel } from './actions'
-import { logout } from './login/actions'
 
 export const instant = false
 
@@ -21,22 +20,14 @@ export default async function AuthorDashboard() {
     const totalChapters = novels?.reduce((sum, novel) => sum + (novel.chapters?.[0]?.count ?? 0), 0) ?? 0
 
     return (
-        <AuthorShell
-            title="นิยายทั้งหมด"
-            actions={(
-                <>
-                    <Link href="/" className="rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-bold text-slate-700 transition hover:border-indigo-300 hover:text-indigo-600 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200">ดูหน้าเว็บไซต์</Link>
-                    <form action={logout}><button className="px-3 py-2.5 text-sm font-bold text-slate-500 transition hover:text-rose-600 dark:text-slate-400">ออกจากระบบ</button></form>
-                </>
-            )}
-        >
-            <section className="mb-8 grid grid-cols-3 gap-3 sm:gap-4" aria-label="ภาพรวมงานเขียน">
+      <AuthorShell title="นิยายทั้งหมด">
+            <section className="mb-6 grid grid-cols-3 gap-2 sm:mb-8 sm:gap-4" aria-label="ภาพรวมงานเขียน">
                 {[
                     { label: 'นิยายทั้งหมด', value: totalNovels, accent: 'text-indigo-600 dark:text-indigo-400' },
                     { label: 'ฉบับร่าง', value: drafts, accent: 'text-amber-600 dark:text-amber-400' },
                     { label: 'ตอนทั้งหมด', value: totalChapters, accent: 'text-sky-600 dark:text-sky-400' },
                 ].map((item) => (
-                    <div key={item.label} className="rounded-2xl border border-slate-200/80 bg-white/80 p-4 shadow-sm backdrop-blur sm:p-5 dark:border-white/10 dark:bg-slate-900/70">
+                    <div key={item.label} className="rounded-2xl border border-slate-200/80 bg-white/80 p-3 shadow-sm backdrop-blur sm:p-5 dark:border-white/10 dark:bg-slate-900/70">
                         <p className={`text-2xl font-black sm:text-3xl ${item.accent}`}>{item.value}</p>
                         <p className="mt-1 text-xs font-semibold text-slate-500 sm:text-sm dark:text-slate-400">{item.label}</p>
                     </div>
@@ -52,8 +43,8 @@ export default async function AuthorDashboard() {
 
             <div className="space-y-4">
                 {novels?.map((novel) => (
-                    <article key={novel.id} className="group grid gap-4 rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg hover:shadow-indigo-100/50 sm:grid-cols-[72px_1fr_auto] sm:items-center dark:border-white/10 dark:bg-slate-900/80 dark:hover:border-indigo-500/30 dark:hover:shadow-black/20">
-                        <div className="aspect-[3/4] w-[72px] overflow-hidden rounded-xl bg-gradient-to-br from-indigo-100 to-slate-200 dark:from-indigo-950 dark:to-slate-800">
+                    <article key={novel.id} className="group grid grid-cols-[56px_minmax(0,1fr)] items-center gap-x-4 gap-y-3 rounded-2xl border border-slate-200/80 bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-lg hover:shadow-indigo-100/50 sm:grid-cols-[72px_minmax(0,1fr)_auto] sm:p-4 dark:border-white/10 dark:bg-slate-900/80 dark:hover:border-indigo-500/30 dark:hover:shadow-black/20">
+                        <div className="aspect-[3/4] w-14 overflow-hidden rounded-lg sm:w-[72px] sm:rounded-xl bg-gradient-to-br from-indigo-100 to-slate-200 dark:from-indigo-950 dark:to-slate-800">
                             {novel.cover_image_url ? <img src={novel.cover_image_url} alt="" className="h-full w-full object-cover" /> : <div className="grid h-full place-items-center text-2xl text-indigo-400">✦</div>}
                         </div>
 
@@ -62,11 +53,11 @@ export default async function AuthorDashboard() {
                                 <StatusBadge status={novel.publication_status} />
                                 <span className="text-xs font-medium text-slate-400">{novel.chapters?.[0]?.count ?? 0} ตอน</span>
                             </div>
-                            <h3 className="truncate text-lg font-black">{novel.title}</h3>
+                            <h3 className="line-clamp-2 text-base font-black leading-snug sm:truncate sm:text-lg">{novel.title}</h3>
                             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{novel.author_name || 'ไม่ระบุผู้แต่ง'}</p>
                         </div>
 
-                        <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+                        <div className="col-span-2 flex flex-wrap items-center justify-end gap-2 border-t border-slate-100 pt-3 sm:col-span-1 sm:border-0 sm:pt-0 dark:border-white/5">
                             {novel.publication_status === 'published' && <Link href={`/novel/${novel.id}`} className="rounded-lg px-3 py-2 text-sm font-semibold text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 dark:hover:bg-white/5 dark:hover:text-white">ดูหน้าเรื่อง</Link>}
                             <Link href={`/author/novels/${novel.id}/edit`} className="rounded-lg bg-slate-950 px-4 py-2 text-sm font-bold text-white transition hover:bg-indigo-600 dark:bg-indigo-500 dark:hover:bg-indigo-400">แก้ไข</Link>
                             <DeleteButton compact action={deleteNovel.bind(null, novel.id)} message={`ลบนิยาย “${novel.title}” และทุกตอนอย่างถาวรหรือไม่?`} />

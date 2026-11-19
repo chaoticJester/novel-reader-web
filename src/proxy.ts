@@ -1,29 +1,57 @@
 import { NextRequest, NextResponse } from 'next/server'
-import {
-    authorSessionCookieName,
-    verifySessionToken,
-} from '@/lib/author-session'
+import { updateSupabaseSession } from '@/lib/supabase-proxy'
 
-export function proxy(request: NextRequest) {
+function isUnder(path: string, base: string): boolean {
+    return path === base || path.startsWith(`${base}/`)
+}
+
+const LOGIN_REQUIRED = ['/profile', '/library']
+
+function redirectWithCookies(url: URL, from: NextResponse): NextResponse {
+    const redirect = NextResponse.redirect(url)
+    from.cookies.getAll().forEach((cookie) => redirect.cookies.set(cookie))
+    return redirect
+}
+
+export async function proxy(request: NextRequest) {
+    // 1) รีเฟรช session (ทุกหน้า)
+    const { response, supabase, userId } = await updateSupabaseSession(request)
+
     const path = request.nextUrl.pathname
+    const needsAdmin = isUnder(path, '/author')
+    const needsLogin = needsAdmin || LOGIN_REQUIRED.some((base) => isUnder(path, base))
 
-    if (path === '/author/login') {
-        return NextResponse.next()
+    if (!needsLogin) {
+        return response
     }
 
-    const token = request.cookies.get(
-        authorSessionCookieName,
-    )?.value
-
-    if (!verifySessionToken(token)) {
-        return NextResponse.redirect(
-            new URL('/author/login', request.url),
-        )
+    // 2) ยังไม่ล็อกอิน → ไปหน้าล็อกอิน แล้วกลับมาที่เดิม
+    if (!userId) {
+        const loginUrl = new URL('/login', request.url)
+        loginUrl.searchParams.set('next', path)
+        return redirectWithCookies(loginUrl, response)
     }
 
-    return NextResponse.next()
+    if (!needsAdmin) {
+        return response
+    }
+
+    // 3) /author: ต้องเป็น admin
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', userId)
+        .maybeSingle()
+
+    if (profile?.role !== 'admin') {
+        return redirectWithCookies(new URL('/', request.url), response)
+    }
+
+    return response
 }
 
 export const config = {
-    matcher: ['/author/:path*'],
+    matcher: [
+        '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)',
+    ],
 }

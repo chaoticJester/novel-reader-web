@@ -48,12 +48,12 @@ export default function ChapterList({ novelId, chapters }: { novelId: string; ch
     return (
         <div>
             <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <h2 className="text-2xl font-bold">
-                    รายชื่อตอน
+                <h2 className="text-xl font-bold sm:text-2xl">
+                    รายชื่อตอน <span className="text-base font-normal text-slate-500 dark:text-slate-400">({chapters.length})</span>
                 </h2>
 
                 <div className="flex items-center gap-2">
-                    <div className="relative flex-1 sm:w-128 sm:flex-none">
+                    <div className="relative flex-1 sm:w-80 sm:flex-none lg:w-96">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
                             width="18"
@@ -70,12 +70,13 @@ export default function ChapterList({ novelId, chapters }: { novelId: string; ch
                             <path d="m21 21-4.3-4.3" />
                         </svg>
 
+                        {/* มือถือใช้ text-base (16px) กัน iOS ซูมหน้าตอนแตะช่องพิมพ์ */}
                         <input
                             type="text"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             placeholder="ค้นหาตอน..."
-                            className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-10 pr-3 text-sm outline-none transition focus:border-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
+                            className="h-10 w-full rounded-lg border border-slate-200 bg-white pl-10 pr-3 text-base outline-none transition focus:border-blue-500 sm:text-sm dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100"
                         />
                     </div>
 
@@ -83,8 +84,8 @@ export default function ChapterList({ novelId, chapters }: { novelId: string; ch
                         onClick={() =>
                             setOrder((o) => (o === 'desc' ? 'asc' : 'desc'))
                         }
-                        aria-label="สลับการเรียงลำดับตอน"
-                        className="flex shrink-0 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 transition-colors hover:border-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-blue-500"
+                        aria-label={order === 'desc' ? 'เรียงใหม่ไปเก่า (กดเพื่อสลับ)' : 'เรียงเก่าไปใหม่ (กดเพื่อสลับ)'}
+                        className="flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-700 transition-colors hover:border-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:border-blue-500"
                     >
                         {order === 'desc' ? 'ใหม่ → เก่า' : 'เก่า → ใหม่'}
 
@@ -110,27 +111,37 @@ export default function ChapterList({ novelId, chapters }: { novelId: string; ch
                     </button>
                 </div>
             </div>
-            <div className="chapter-list-scrollbar max-h-156 overflow-y-auto pr-1">
+
+            {/* กล่องเลื่อนในตัวทุกขนาดจอ: เรื่องที่มีหลายร้อยตอนจะไม่ดันคอมเมนต์ลงไปไกล
+                มือถือ: สูง 70% ของจอ (dvh = ไม่นับแถบที่อยู่ของเบราว์เซอร์ที่ยุบ/ขยายได้) · คอม: ขนาดเดิม */}
+            <div className="chapter-list-scrollbar max-h-[70dvh] overflow-y-auto pr-1 md:max-h-156">
               <ul className="space-y-2">
-                  {filteredAndSorted.map((chapter) => (
-                      <li key={chapter.id}>
-                          <Link
-                              href={`/novel/${novelId}/chapter/${chapter.id}`}
-                              className="flex items-baseline gap-4 p-4 bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-lg hover:border-blue-500 dark:hover:border-blue-500 hover:shadow-sm transition-all"
-                          >
-                              <div className='vertical-align: middle'>
-                                  <p className={`font-semibold whitespace-nowrap ${readChapters.includes(chapter.id) ? 'text-black dark:text-slate-600' : 'text-black dark:text-slate-100'}`}>
+                  {filteredAndSorted.map((chapter) => {
+                      const isRead = readChapters.includes(chapter.id)
+                      return (
+                          <li key={chapter.id}>
+                              {/* มือถือ: 2 บรรทัด (เลขตอน + เวลา / ชื่อตอน) · คอม: บรรทัดเดียว เลขตอน | ชื่อตอน | เวลา */}
+                              <Link
+                                  href={`/novel/${novelId}/chapter/${chapter.id}`}
+                                  className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-3 gap-y-0.5 rounded-lg border border-slate-200 bg-white px-4 py-3 transition-all hover:border-blue-500 hover:shadow-sm md:grid-cols-[7rem_minmax(0,1fr)_auto] md:gap-x-4 md:p-4 dark:border-slate-700 dark:bg-slate-800/60 dark:hover:border-blue-500"
+                              >
+                                  <p className={`whitespace-nowrap font-semibold ${isRead ? 'text-black dark:text-slate-600' : 'text-black dark:text-slate-100'}`}>
                                       ตอนที่ {chapter.chapter_number}
                                   </p>
-                                  <p className={`line-clamp-1 ${readChapters.includes(chapter.id) ? 'text-black dark:text-slate-600' : 'text-black dark:text-slate-400'}`}>{chapter.title}</p>
-                                  <p className="text-sm text-gray-400 dark:text-slate-500 whitespace-nowrap ml-auto">
+                                  <p className={`col-span-2 row-start-2 line-clamp-1 text-sm md:col-span-1 md:row-start-auto md:text-base ${isRead ? 'text-black dark:text-slate-600' : 'text-black dark:text-slate-400'}`}>
+                                      {chapter.title}
+                                  </p>
+                                  <p className="col-start-2 row-start-1 whitespace-nowrap text-right text-xs text-gray-400 md:col-start-auto md:row-start-auto md:text-sm dark:text-slate-500">
                                       <RelativeTime iso={chapter.created_at} />
                                   </p>
-                              </div>
-                          </Link>
-                      </li>
-                  ))}
+                              </Link>
+                          </li>
+                      )
+                  })}
               </ul>
+              {filteredAndSorted.length === 0 && (
+                  <p className="py-8 text-center text-sm text-slate-500 dark:text-slate-400">ไม่พบตอนที่ค้นหา</p>
+              )}
             </div>
         </div>
     )

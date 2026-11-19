@@ -46,8 +46,6 @@ export default async function EditNovelPage({
             width="editor"
             title={novelResult.data.title}
             description="ปรับรายละเอียดนิยายและจัดการทุกตอนในที่เดียว"
-            backHref="/author"
-            backLabel="กลับไปชั้นหนังสือ"
         >
             <NovelForm
                 novel={novelResult.data}

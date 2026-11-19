@@ -1,128 +1,210 @@
-import { supabase } from '@/lib/supabase'
+import { supabase } from "@/lib/supabase";
 import {
-    Sarabun,
-    Noto_Sans_Thai,
-    Noto_Serif_Thai,
-    IBM_Plex_Sans_Thai,
-    Bai_Jamjuree,
-    Chakra_Petch,
-} from 'next/font/google'
-import ContentReader from '@/components/ContentReader'
-import { ReaderSettingsProvider } from '@/components/ReaderSettingsProvider'
-import ReaderNavigation from '@/components/ReaderNavigation'
-import { cacheTag, cacheLife } from 'next/cache'
+  Sarabun,
+  Noto_Sans_Thai,
+  Noto_Serif_Thai,
+  IBM_Plex_Sans_Thai,
+  Bai_Jamjuree,
+  Chakra_Petch,
+} from "next/font/google";
+import ContentReader from "@/components/ContentReader";
+import { ReaderSettingsProvider } from "@/components/ReaderSettingsProvider";
+import ReaderNavigation from "@/components/ReaderNavigation";
+import { cacheTag, cacheLife } from "next/cache";
+import { Suspense } from 'react'
+import CommentSection from '@/components/comments/CommentSection'
 
 // ฟอนต์ทั้งหมดต้องถูกเรียกที่ระดับ module (ข้อกำหนดของ next/font) แล้วส่ง className ลงไป
-const sarabun = Sarabun({ subsets: ['thai'], weight: ['400', '700'], display: 'swap' })
-const notoSansThai = Noto_Sans_Thai({ subsets: ['thai'], display: 'swap' })
-const notoSerifThai = Noto_Serif_Thai({ subsets: ['thai'], weight: ['400', '700'], display: 'swap' })
-const ibmPlexSansThai = IBM_Plex_Sans_Thai({ subsets: ['thai'], weight: ['400', '700'], display: 'swap' })
-const baiJamjuree = Bai_Jamjuree({ subsets: ['thai'], weight: ['400', '700'], display: 'swap' })
-const chakraPetch = Chakra_Petch({ subsets: ['thai'], weight: ['400', '700'], display: 'swap' })
+const sarabun = Sarabun({
+  subsets: ["thai"],
+  weight: ["400", "700"],
+  display: "swap",
+});
+const notoSansThai = Noto_Sans_Thai({ subsets: ["thai"], display: "swap" });
+const notoSerifThai = Noto_Serif_Thai({
+  subsets: ["thai"],
+  weight: ["400", "700"],
+  display: "swap",
+});
+const ibmPlexSansThai = IBM_Plex_Sans_Thai({
+  subsets: ["thai"],
+  weight: ["400", "700"],
+  display: "swap",
+});
+const baiJamjuree = Bai_Jamjuree({
+  subsets: ["thai"],
+  weight: ["400", "700"],
+  display: "swap",
+});
+const chakraPetch = Chakra_Petch({
+  subsets: ["thai"],
+  weight: ["400", "700"],
+  display: "swap",
+});
 
 // key ต้องตรงกับที่เก็บใน localStorage; ค่าเริ่มต้นคือ 'noto-serif'
 const FONTS = [
-    { key: 'sarabun', label: 'Sarabun', className: sarabun.className },
-    { key: 'noto-sans', label: 'Noto Sans Thai', className: notoSansThai.className },
-    { key: 'noto-serif', label: 'Noto Serif Thai', className: notoSerifThai.className },
-    { key: 'ibm-plex', label: 'IBM Plex Sans Thai', className: ibmPlexSansThai.className },
-    { key: 'bai-jamjuree', label: 'Bai Jamjuree', className: baiJamjuree.className },
-    { key: 'chakra-petch', label: 'Chakra Petch', className: chakraPetch.className },
-]
-
+  { key: "sarabun", label: "Sarabun", className: sarabun.className },
+  {
+    key: "noto-sans",
+    label: "Noto Sans Thai",
+    className: notoSansThai.className,
+  },
+  {
+    key: "noto-serif",
+    label: "Noto Serif Thai",
+    className: notoSerifThai.className,
+  },
+  {
+    key: "ibm-plex",
+    label: "IBM Plex Sans Thai",
+    className: ibmPlexSansThai.className,
+  },
+  {
+    key: "bai-jamjuree",
+    label: "Bai Jamjuree",
+    className: baiJamjuree.className,
+  },
+  {
+    key: "chakra-petch",
+    label: "Chakra Petch",
+    className: chakraPetch.className,
+  },
+];
 
 export async function generateStaticParams() {
-    const { data: chapters } = await supabase
-        .from('chapters')
-        .select('id, novel_id')
-        .eq('publication_status', 'published')
-        .limit(500) // จำกัดจำนวน build ล่วงหน้า ตอนที่เหลือ generate on-demand ตอน dynamicParams=true
+  const { data: chapters } = await supabase
+    .from("chapters")
+    .select("id, novel_id")
+    .eq("publication_status", "published")
+    .limit(500); // จำกัดจำนวน build ล่วงหน้า ตอนที่เหลือ generate on-demand ตอน dynamicParams=true
 
-    return (chapters || []).map((c) => ({
-        id: c.novel_id,
-        chapterId: c.id,
-    }))
+  return (chapters || []).map((c) => ({
+    id: c.novel_id,
+    chapterId: c.id,
+  }));
 }
 
 export default async function ChapterReadingPage({
-    params
+  params,
+  searchParams,
 }: {
-    params: Promise<{ id: string, chapterId: string }>
+  params: Promise<{ id: string; chapterId: string }>;
+  // ไม่ await ที่นี่: ส่ง Promise ให้ CommentSection (ใน Suspense) ไม่อย่างนั้นทั้งหน้าจะเป็น dynamic
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-    const { id, chapterId } = await params
+  const { id, chapterId } = await params;
 
-    // 1. ดึงข้อมูลเนื้อหาตอนปัจจุบัน
-    async function getChapter(chapterId: string) {
-        'use cache'
-        cacheTag(`chapter-${chapterId}`)
-        cacheLife('max')
+  // 1. ดึงข้อมูลเนื้อหาตอนปัจจุบัน
+  async function getChapter(chapterId: string) {
+    "use cache";
+    cacheTag(`chapter-${chapterId}`);
+    cacheLife("max");
 
-        const { data, error } = await supabase
-            .from('chapters')
-            .select(`*, novels!inner(title, publication_status)`)
-            .eq('id', chapterId)
-            .eq('publication_status', 'published')
-            .eq('novels.publication_status', 'published')
-            .maybeSingle()
-        // โยน error เพื่อไม่ให้ cache เก็บผลลัพธ์ที่ล้มเหลว (เช่นตอน Supabase ล่ม/restart) ไว้ถาวร
-        if (error) throw new Error(`Failed to load chapter: ${error.message}`)
-        return { data }
-    }
-    const { data: chapter } = await getChapter(chapterId)
+    const { data, error } = await supabase
+      .from("chapters")
+      .select(`*, novels!inner(title, publication_status)`)
+      .eq("id", chapterId)
+      .eq("publication_status", "published")
+      .eq("novels.publication_status", "published")
+      .maybeSingle();
+    // โยน error เพื่อไม่ให้ cache เก็บผลลัพธ์ที่ล้มเหลว (เช่นตอน Supabase ล่ม/restart) ไว้ถาวร
+    if (error) throw new Error(`Failed to load chapter: ${error.message}`);
+    return { data };
+  }
+  const { data: chapter } = await getChapter(chapterId);
 
-    if (!chapter) {
-        return <div className="p-8 text-center text-red-500">ไม่พบเนื้อหาตอนนี้ หรือเกิดข้อผิดพลาด</div>
-    }
-
-    // 2. ดึงข้อมูล (ก่อนหน้า, ถัดไป, และ **รายชื่อตอนทั้งหมด**)
-    async function getChapterNav(novelId: string, chapterNumber: number) {
-        'use cache'
-        cacheTag(`novel-${novelId}-toc`)
-        // fallback กันเหนียว: ถ้า webhook พลาด nav จะ revalidate เองทุก 1 นาที
-        cacheLife({ stale: 30, revalidate: 60, expire: 86400 })
-
-        const [prevRes, nextRes, allChaptersRes] = await Promise.all([
-            supabase.from('chapters').select('id').eq('novel_id', novelId).eq('publication_status', 'published').lt('chapter_number', chapterNumber).order('chapter_number', { ascending: false }).limit(1),
-            supabase.from('chapters').select('id').eq('novel_id', novelId).eq('publication_status', 'published').gt('chapter_number', chapterNumber).order('chapter_number', { ascending: true }).limit(1),
-            supabase.from('chapters').select('id, title, chapter_number, created_at').eq('novel_id', novelId).eq('publication_status', 'published').order('chapter_number', { ascending: true }),
-        ])
-        const failed = [prevRes, nextRes, allChaptersRes].find((r) => r.error)
-        if (failed?.error) throw new Error(`Failed to load chapter nav: ${failed.error.message}`)
-        return { prevRes, nextRes, allChaptersRes }
-    }    
-
-    const { prevRes, nextRes, allChaptersRes } = await getChapterNav(id, chapter.chapter_number)
-    const prevChapter = prevRes.data?.[0]
-    const nextChapter = nextRes.data?.[0]
-    const allChapters = allChaptersRes.data || []
-
+  if (!chapter) {
     return (
-        <ReaderSettingsProvider>
-            <ReaderNavigation
-                novelId={id}
-                chapterId={chapterId}
-                chapterNumber={chapter.chapter_number}
-                chapterTitle={chapter.title}
-                novelTitle={(Array.isArray(chapter.novels) ? chapter.novels[0]?.title : chapter.novels?.title) ?? ''}
-                previousChapter={prevChapter ?? null}
-                nextChapter={nextChapter ?? null}
-                chapters={allChapters}
-                fonts={FONTS}
-            >
-                <main className="min-h-screen transition-colors">
-                    <div className="mb-10 border-b border-[var(--reader-border)] pb-6 text-center">
-                        <h1 className="mb-4 text-2xl font-bold text-[var(--reader-foreground)] md:text-3xl">
-                            ตอนที่ {chapter.chapter_number}: {chapter.title}
-                        </h1>
-                        <p className="text-sm text-[var(--reader-muted)]">
-                            อัปเดตเมื่อ: {new Date(chapter.created_at).toLocaleDateString('th-TH')}
-                        </p>
-                    </div>
+      <div className="p-8 text-center text-red-500">
+        ไม่พบเนื้อหาตอนนี้ หรือเกิดข้อผิดพลาด
+      </div>
+    );
+  }
 
-                    <ContentReader content={chapter.content} fonts={FONTS} />
-                </main>
-            </ReaderNavigation>
-        </ReaderSettingsProvider>
-    )
+  // 2. ดึงข้อมูล (ก่อนหน้า, ถัดไป, และ **รายชื่อตอนทั้งหมด**)
+  async function getChapterNav(novelId: string, chapterNumber: number) {
+    "use cache";
+    cacheTag(`novel-${novelId}-toc`);
+    // fallback กันเหนียว: ถ้า webhook พลาด nav จะ revalidate เองทุก 1 นาที
+    cacheLife({ stale: 30, revalidate: 60, expire: 86400 });
 
+    const [prevRes, nextRes, allChaptersRes] = await Promise.all([
+      supabase
+        .from("chapters")
+        .select("id")
+        .eq("novel_id", novelId)
+        .eq("publication_status", "published")
+        .lt("chapter_number", chapterNumber)
+        .order("chapter_number", { ascending: false })
+        .limit(1),
+      supabase
+        .from("chapters")
+        .select("id")
+        .eq("novel_id", novelId)
+        .eq("publication_status", "published")
+        .gt("chapter_number", chapterNumber)
+        .order("chapter_number", { ascending: true })
+        .limit(1),
+      supabase
+        .from("chapters")
+        .select("id, title, chapter_number, created_at")
+        .eq("novel_id", novelId)
+        .eq("publication_status", "published")
+        .order("chapter_number", { ascending: true }),
+    ]);
+    const failed = [prevRes, nextRes, allChaptersRes].find((r) => r.error);
+    if (failed?.error)
+      throw new Error(`Failed to load chapter nav: ${failed.error.message}`);
+    return { prevRes, nextRes, allChaptersRes };
+  }
+
+  const { prevRes, nextRes, allChaptersRes } = await getChapterNav(
+    id,
+    chapter.chapter_number,
+  );
+  const prevChapter = prevRes.data?.[0];
+  const nextChapter = nextRes.data?.[0];
+  const allChapters = allChaptersRes.data || [];
+
+  return (
+    <ReaderSettingsProvider>
+      <ReaderNavigation
+        key={chapterId}
+        novelId={id}
+        chapterId={chapterId}
+        chapterNumber={chapter.chapter_number}
+        chapterTitle={chapter.title}
+        novelTitle={
+          (Array.isArray(chapter.novels)
+            ? chapter.novels[0]?.title
+            : chapter.novels?.title) ?? ""
+        }
+        previousChapter={prevChapter ?? null}
+        nextChapter={nextChapter ?? null}
+        chapters={allChapters}
+        fonts={FONTS}
+        comments={
+          <Suspense fallback={<div className="h-40 animate-pulse rounded-xl bg-white/5" />}>
+            <CommentSection target={{ novelId: id, chapterId }} className="" searchParams={searchParams} />
+          </Suspense>
+        }
+      >
+        <main className="transition-colors">
+          <div className="mb-6 border-b border-[var(--reader-border)] pb-5 text-center md:mb-10 md:pb-6">
+            <h1 className="mb-3 text-xl font-bold leading-snug sm:text-2xl md:mb-4 text-[var(--reader-foreground)] md:text-3xl">
+              ตอนที่ {chapter.chapter_number}: {chapter.title}
+            </h1>
+            <p className="text-sm text-[var(--reader-muted)]">
+              อัปเดตเมื่อ:{" "}
+              {new Date(chapter.created_at).toLocaleDateString("th-TH")}
+            </p>
+          </div>
+
+          <ContentReader content={chapter.content} fonts={FONTS} />
+        </main>
+          
+      </ReaderNavigation>
+    </ReaderSettingsProvider>
+  );
 }
