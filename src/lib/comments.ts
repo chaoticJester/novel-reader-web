@@ -38,24 +38,29 @@ function visibleIn(target: CommentTarget, columns: string, options?: { count: 'e
     return target.chapterId ? query.eq('chapter_id', target.chapterId) : query.is('chapter_id', null)
 }
 
-export async function getComments(target: CommentTarget) {
+// pages เป็นส่วนหนึ่งของ cache key เอง แต่ใช้ tag เดียวกัน: updateTag ครั้งเดียวล้างทุกจำนวนหน้า
+export async function getComments(target: CommentTarget, pages = 1) {
     'use cache'
     cacheTag(ALL_COMMENTS_TAG, commentsTag(target))
     cacheLife({ stale: 60, revalidate: 300, expire: 86400 })
 
-    // 1) คอมเมนต์หลัก 50 ตัวล่าสุด + จำนวนทั้งหมด (นับทั้งคอมเมนต์หลักและการตอบกลับ) พร้อมกัน
+    const limit = COMMENTS_PAGE_SIZE * pages
+
+    // 1) คอมเมนต์หลัก (เกินมา 1 ตัวไว้ดูว่ามีหน้าถัดไปไหม) + จำนวนทั้งหมด (รวมการตอบกลับ) พร้อมกัน
     const [rootsRes, totalRes] = await Promise.all([
         visibleIn(target, COMMENT_COLUMNS, { count: 'exact' })
             .is('parent_id', null)
             .order('created_at', { ascending: false })
-            .limit(COMMENTS_PAGE_SIZE),
+            .limit(limit + 1),
         visibleIn(target, 'id', { count: 'exact', head: true }), // head: นับอย่างเดียว ไม่ส่งแถวกลับมา
     ])
 
     if (rootsRes.error) throw new Error(`โหลดคอมเมนต์ไม่สำเร็จ: ${rootsRes.error.message}`)
     if (totalRes.error) throw new Error(`นับคอมเมนต์ไม่สำเร็จ: ${totalRes.error.message}`)
 
-    const roots = (rootsRes.data ?? []) as unknown as CommentItem[]
+    const rows = (rootsRes.data ?? []) as unknown as CommentItem[]
+    const hasMore = rows.length > limit
+    const roots = rows.slice(0, limit)
 
     // 2) การตอบกลับของคอมเมนต์หลักชุดนี้ (query เดียว ไม่ต้องวนทีละตัว)
     let replies: CommentItem[] = []
@@ -81,5 +86,5 @@ export async function getComments(target: CommentTarget) {
         replies: repliesByParent.get(root.id) ?? [],
     }))
 
-    return { threads, total: totalRes.count ?? 0, rootTotal: rootsRes.count ?? 0 }
+    return { threads, total: totalRes.count ?? 0, rootTotal: rootsRes.count ?? 0, hasMore }
 }

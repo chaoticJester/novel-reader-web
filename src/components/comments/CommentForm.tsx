@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useState } from 'react'
+import { useActionState, useRef, useState } from 'react'
 import type { CommentFormState } from '@/lib/comment-actions'
 import { MAX_COMMENT_LENGTH, commentLength } from '@/lib/comment-rules'
 
@@ -35,10 +35,27 @@ export default function CommentForm({
     }, {})
 
     const tooLong = length > MAX_COMMENT_LENGTH
+    const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+    // ครอบข้อความที่เลือกด้วย ||...|| (ไม่ได้เลือกอะไร = ใส่ตัวอย่างแล้วเลือกคำนั้นไว้ให้พิมพ์ทับ)
+    // textarea เป็น uncontrolled จึงแก้ value ตรงได้ แต่ไม่เกิด onChange ต้องอัปเดตตัวนับเอง
+    function wrapSpoiler() {
+        const textarea = textareaRef.current
+        if (!textarea) return
+
+        const { selectionStart: start, selectionEnd: end, value } = textarea
+        const selected = value.slice(start, end) || 'สปอยล์'
+        textarea.value = `${value.slice(0, start)}||${selected}||${value.slice(end)}`
+
+        textarea.focus()
+        textarea.setSelectionRange(start + 2, start + 2 + selected.length)
+        setLength(commentLength(textarea.value))
+    }
 
     return (
         <form action={formAction} className="flex-1 space-y-2">
             <textarea
+                ref={textareaRef}
                 name="body"
                 rows={3}
                 required
@@ -61,9 +78,20 @@ export default function CommentForm({
             />
 
             <div className="flex items-center justify-between gap-3">
-                <span className={`text-xs tabular-nums ${tooLong ? 'text-red-400' : 'opacity-50'}`}>
-                    {length}/{MAX_COMMENT_LENGTH}
-                </span>
+                <div className="flex items-center gap-3">
+                    <button
+                        type="button"
+                        onClick={wrapSpoiler}
+                        disabled={pending}
+                        title="ครอบข้อความที่เลือกเป็นสปอยล์ (||ข้อความ||)"
+                        className="rounded-md border border-current/20 px-2 py-1 text-xs opacity-70 transition hover:opacity-100"
+                    >
+                        ⬛ สปอยล์
+                    </button>
+                    <span className={`text-xs tabular-nums ${tooLong ? 'text-red-400' : 'opacity-50'}`}>
+                        {length}/{MAX_COMMENT_LENGTH}
+                    </span>
+                </div>
                 <div className="flex items-center gap-3">
                     {onCancel && (
                         <button type="button" onClick={onCancel} disabled={pending} className="text-sm opacity-60 hover:opacity-100">

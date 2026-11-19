@@ -8,6 +8,7 @@ import { MAX_COMMENT_LENGTH, commentLength } from '@/lib/comment-rules'
 import type { CommentItem, CommentThread } from '@/lib/comments'
 import type { UserRole } from '@/lib/current-user'
 import CommentForm from '@/components/comments/CommentForm'
+import CommentBody from '@/components/comments/CommentBody'
 
 export type Viewer = { id: string; role: UserRole } | null
 
@@ -127,8 +128,7 @@ function CommentRow({
                         </div>
                     </div>
                 ) : (
-                    // ข้อความธรรมดา: React escape ให้ ห้ามใช้ dangerouslySetInnerHTML
-                    <p className="mt-1 whitespace-pre-wrap break-words leading-relaxed">{comment.body}</p>
+                    <CommentBody text={comment.body} />
                 )}
 
                 {!editing && (onReply || isOwner || isAdmin) && (

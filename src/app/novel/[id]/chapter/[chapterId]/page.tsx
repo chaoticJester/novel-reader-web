@@ -87,8 +87,11 @@ export async function generateStaticParams() {
 
 export default async function ChapterReadingPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string; chapterId: string }>;
+  // ไม่ await ที่นี่: ส่ง Promise ให้ CommentSection (ใน Suspense) ไม่อย่างนั้นทั้งหน้าจะเป็น dynamic
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { id, chapterId } = await params;
 
@@ -183,7 +186,7 @@ export default async function ChapterReadingPage({
         fonts={FONTS}
         comments={
           <Suspense fallback={<div className="h-40 animate-pulse rounded-xl bg-white/5" />}>
-            <CommentSection target={{ novelId: id, chapterId }} className="" />
+            <CommentSection target={{ novelId: id, chapterId }} className="" searchParams={searchParams} />
           </Suspense>
         }
       >

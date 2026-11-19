@@ -112,8 +112,9 @@ export default function ChapterList({ novelId, chapters }: { novelId: string; ch
                 </div>
             </div>
 
-            {/* คอม: กล่องเลื่อนในตัว · มือถือ: ไม่ซ้อน scroll ให้เลื่อนไปกับหน้าเลย (ลื่นกว่าบนจอสัมผัส) */}
-            <div className="chapter-list-scrollbar md:max-h-156 md:overflow-y-auto md:pr-1">
+            {/* กล่องเลื่อนในตัวทุกขนาดจอ: เรื่องที่มีหลายร้อยตอนจะไม่ดันคอมเมนต์ลงไปไกล
+                มือถือ: สูง 70% ของจอ (dvh = ไม่นับแถบที่อยู่ของเบราว์เซอร์ที่ยุบ/ขยายได้) · คอม: ขนาดเดิม */}
+            <div className="chapter-list-scrollbar max-h-[70dvh] overflow-y-auto pr-1 md:max-h-156">
               <ul className="space-y-2">
                   {filteredAndSorted.map((chapter) => {
                       const isRead = readChapters.includes(chapter.id)

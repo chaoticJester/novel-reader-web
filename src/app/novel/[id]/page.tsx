@@ -51,8 +51,11 @@ export async function generateStaticParams() {
 
 export default async function NovelDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  // ไม่ await ที่นี่: ส่ง Promise ให้ CommentSection (ใน Suspense) ไม่อย่างนั้นทั้งหน้าจะเป็น dynamic
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   // ดึง ID ของนิยายจาก URL
   const { id } = await params;
@@ -202,7 +205,7 @@ export default async function NovelDetailPage({
             <div className="mt-10 h-40 animate-pulse rounded-xl bg-slate-800/50" />
           }
         >
-          <CommentSection target={{ novelId: novel.id, chapterId: null }} />
+          <CommentSection target={{ novelId: novel.id, chapterId: null }} searchParams={searchParams} />
         </Suspense>
       </main>
     </>
