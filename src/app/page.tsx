@@ -52,7 +52,9 @@ async function getNovels() {
 
 const menuItems: NavigationItem[] = [
   { href: "/", label: "หน้าหลัก" },
+  
 ];
+
 
 export default async function Home() {
     // ดึงข้อมูลนิยาย เรียงตามตอนที่อัปเดตล่าสุด
@@ -62,6 +64,7 @@ export default async function Home() {
         console.error('Error fetching novels:', error)
         return <div className="p-8 text-red-500">เกิดข้อผิดพลาดในการโหลดข้อมูล: {error.message}</div>
     }
+
 
   return (
       <>
