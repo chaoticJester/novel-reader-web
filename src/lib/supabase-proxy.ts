@@ -17,7 +17,7 @@ export async function updateSupabaseSession(request: NextRequest) {
                         request.cookies.set(name, value),
                     )
                     response = NextResponse.next({ request })
-                  
+
                     cookiesToSet.forEach(({ name, value, options }) =>
                         response.cookies.set(name, value, options),
                     )
@@ -29,8 +29,8 @@ export async function updateSupabaseSession(request: NextRequest) {
         },
     )
 
-    // ห้ามมีโค้ดอื่นคั่นระหว่าง createServerClient กับบรรทัดนี้
-    await supabase.auth.getClaims()
+    const { data } = await supabase.auth.getClaims()
+    const userId = data?.claims?.sub ?? null
 
-    return response
+    return { response, supabase, userId }
 }

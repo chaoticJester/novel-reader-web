@@ -2,7 +2,7 @@
 
 import { updateTag } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { requireAuthorSession } from '@/lib/author-session'
+import { requireAdmin } from '@/lib/require-admin'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import {
     parseChapterForm,
@@ -78,7 +78,7 @@ async function syncNovelTags(novelId: string, tags: TagInput[]) {
 }
 
 export async function createNovel(formData: FormData) {
-    await requireAuthorSession()
+    await requireAdmin()
 
     const values = parseNovelForm(formData)
     const tags = parseTagNames(formData)
@@ -109,7 +109,7 @@ export async function updateNovel(
     novelId: string,
     formData: FormData,
 ) {
-    await requireAuthorSession()
+    await requireAdmin()
 
     const values = parseNovelForm(formData)
     const tags = parseTagNames(formData)
@@ -151,7 +151,7 @@ export async function updateNovel(
 }
 
 export async function deleteNovel(novelId: string) {
-    await requireAuthorSession()
+    await requireAdmin()
 
     const { data: existingNovel, error: lookupError } = await supabaseAdmin
         .from('novels')
@@ -184,7 +184,7 @@ export async function createChapter(
     novelId: string,
     formData: FormData,
 ) {
-    await requireAuthorSession()
+    await requireAdmin()
 
     const values = parseChapterForm(formData)
 
@@ -213,7 +213,7 @@ export async function updateChapter(
     chapterId: string,
     formData: FormData,
 ) {
-    await requireAuthorSession()
+    await requireAdmin()
 
     const values = parseChapterForm(formData)
 
@@ -238,7 +238,7 @@ export async function deleteChapter(
     novelId: string,
     chapterId: string,
 ) {
-    await requireAuthorSession()
+    await requireAdmin()
 
     const { error } = await supabaseAdmin
         .from('chapters')
@@ -267,7 +267,7 @@ export async function uploadChapterImageAction(
     novelId: string,
     formData: FormData,
 ): Promise<ChapterImageUploadResult> {
-    await requireAuthorSession()
+    await requireAdmin()
 
     const file = formData.get('image')
     const validationError = validateChapterImage(file)
