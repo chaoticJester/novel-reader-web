@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { updateSupabaseSession } from '@/lib/supabase-proxy'
 
-function isAuthorArea(path: string): boolean {
-    return path === '/author' || path.startsWith('/author/')
+function isUnder(path: string, base: string): boolean {
+    return path === base || path.startsWith(`${base}/`)
 }
+
+const LOGIN_REQUIRED = ['/profile', '/library']
 
 function redirectWithCookies(url: URL, from: NextResponse): NextResponse {
     const redirect = NextResponse.redirect(url)
@@ -12,19 +14,29 @@ function redirectWithCookies(url: URL, from: NextResponse): NextResponse {
 }
 
 export async function proxy(request: NextRequest) {
+    // 1) รีเฟรช session (ทุกหน้า)
     const { response, supabase, userId } = await updateSupabaseSession(request)
 
     const path = request.nextUrl.pathname
-    if (!isAuthorArea(path)) {
+    const needsAdmin = isUnder(path, '/author')
+    const needsLogin = needsAdmin || LOGIN_REQUIRED.some((base) => isUnder(path, base))
+
+    if (!needsLogin) {
         return response
     }
 
+    // 2) ยังไม่ล็อกอิน → ไปหน้าล็อกอิน แล้วกลับมาที่เดิม
     if (!userId) {
         const loginUrl = new URL('/login', request.url)
         loginUrl.searchParams.set('next', path)
         return redirectWithCookies(loginUrl, response)
     }
 
+    if (!needsAdmin) {
+        return response
+    }
+
+    // 3) /author: ต้องเป็น admin
     const { data: profile } = await supabase
         .from('profiles')
         .select('role')

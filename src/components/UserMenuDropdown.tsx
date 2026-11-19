@@ -4,11 +4,14 @@ import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 import { logout } from "@/app/login/actions";
 import { USER_MENU_LINKS } from "@/lib/user-menu-links";
+import Avatar from "@/components/Avatar";
 
 export default function UserMenuDropdown({
   displayName,
+  avatarUrl,
 }: {
   displayName: string;
+  avatarUrl: string | null;
 }) {
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -42,8 +45,9 @@ export default function UserMenuDropdown({
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={menuId}
-        className="flex items-center gap-2 whitespace-nowrap rounded-lg bg-gray-900 px-4 py-2 font-medium text-white hover:bg-gray-600"
+        className="flex items-center gap-2 whitespace-nowrap rounded-lg bg-gray-900 py-1.5 pl-1.5 pr-3 font-medium text-white hover:bg-gray-600"
       >
+        <Avatar name={displayName} url={avatarUrl} size="sm" />
         <span className="max-w-40 truncate">{displayName}</span>
         <svg
           viewBox="0 0 20 20"

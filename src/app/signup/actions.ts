@@ -4,6 +4,7 @@ import { headers } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
 import { escapeLike } from '@/lib/escape-like'
+import { validateDisplayName } from '@/lib/display-name'
 
 export type SignupState = {
     error?: string
@@ -12,19 +13,6 @@ export type SignupState = {
 }
 
 const MIN_PASSWORD_LENGTH = 8
-const MAX_DISPLAY_NAME_LENGTH = 50
-
-// ชื่อที่ห้ามใช้ กันคนปลอมเป็นผู้ดูแลในคอมเมนต์ (เทียบแบบตัวพิมพ์เล็ก)
-const RESERVED_NAMES = [
-    'admin',
-    'administrator',
-    'moderator',
-    'แอดมิน',
-    'ผู้ดูแล',
-    'ผู้ดูแลระบบ',
-    'rat novel',
-    'ratnovel',
-]
 
 export async function signup(
     _previousState: SignupState,
@@ -37,13 +25,11 @@ export async function signup(
     const values = { displayName, email }
 
     // ---------- 1. ตรวจข้อมูล ----------
-    if (!displayName || displayName.length > MAX_DISPLAY_NAME_LENGTH) {
-        return { error: `ชื่อที่แสดงต้องยาว 1–${MAX_DISPLAY_NAME_LENGTH} ตัวอักษร`, values }
-    }
-    if (RESERVED_NAMES.includes(displayName.toLowerCase())) {
-        return { error: 'ไม่สามารถใช้ชื่อนี้ได้', values }
-    }
-    if (!email) {
+    const displayNameError = validateDisplayName(displayName)
+     if (displayNameError) {
+         return { error: displayNameError, values }
+     }
+     if (!email) {
         return { error: 'กรุณากรอกอีเมล', values }
     }
     if (password.length < MIN_PASSWORD_LENGTH) {

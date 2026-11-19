@@ -9,5 +9,5 @@ export default async function UserMenu() {
     return <LoginLink />;
   }
 
-  return <UserMenuDropdown displayName={user.displayName}/>;
+    return <UserMenuDropdown displayName={user.displayName} avatarUrl={user.avatarUrl} />;
 }
