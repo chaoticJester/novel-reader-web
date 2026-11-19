@@ -22,8 +22,8 @@ const labelClass = 'mb-2 block text-sm font-bold text-slate-700 dark:text-slate-
 
 export default function NovelForm({ action, novel, submitLabel }: Props) {
     return (
-        <form action={action} className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-xl shadow-slate-200/40 dark:border-white/10 dark:bg-slate-900/80 dark:shadow-black/20">
-            <div className="flex items-center justify-between gap-4 border-b border-slate-200/80 px-5 py-5 sm:px-7 dark:border-white/10">
+        <form action={action} className="overflow-clip rounded-2xl border border-slate-200/80 bg-white shadow-xl shadow-slate-200/40 dark:border-white/10 dark:bg-slate-900/80 dark:shadow-black/20">
+            <div className="flex items-center justify-between gap-4 border-b border-slate-200/80 px-4 py-4 sm:px-7 sm:py-5 dark:border-white/10">
                 <div>
                     <h2 className="font-bold">รายละเอียดนิยาย</h2>
                     <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">ข้อมูลที่ผู้อ่านจะเห็นบนหน้าหลัก</p>
@@ -31,7 +31,7 @@ export default function NovelForm({ action, novel, submitLabel }: Props) {
                 {novel && <StatusBadge status={novel.publication_status} />}
             </div>
 
-            <div className="space-y-6 px-5 py-6 sm:px-7">
+            <div className="space-y-5 px-4 py-5 sm:space-y-6 sm:px-7 sm:py-6">
                 <div>
                     <label htmlFor="title" className={labelClass}>ชื่อนิยาย</label>
                     <input id="title" name="title" required defaultValue={novel?.title ?? ''} placeholder="ชื่อนิยายของคุณ" className={inputClass} />
@@ -84,9 +84,9 @@ export default function NovelForm({ action, novel, submitLabel }: Props) {
                 </div>
             </div>
 
-            <div className="flex flex-col-reverse gap-3 border-t border-slate-200/80 bg-slate-50/70 px-5 py-5 sm:flex-row sm:justify-end sm:px-7 dark:border-white/10 dark:bg-slate-950/40">
-                <button type="submit" name="publication_status" value="draft" className="rounded-xl border border-slate-300 bg-white px-5 py-3 font-bold text-slate-700 transition hover:border-slate-400 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800">บันทึกฉบับร่าง</button>
-                <button type="submit" name="publication_status" value="published" className="rounded-xl bg-indigo-600 px-6 py-3 font-bold text-white shadow-lg shadow-indigo-600/20 transition hover:-translate-y-0.5 hover:bg-indigo-500">{submitLabel}</button>
+            <div className="sticky bottom-0 z-10 grid grid-cols-2 gap-3 border-t border-slate-200/80 bg-slate-50 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:static sm:flex sm:justify-end sm:bg-slate-50/70 sm:px-7 sm:py-5 dark:border-white/10 dark:bg-slate-950 sm:dark:bg-slate-950/40">
+                <button type="submit" name="publication_status" value="draft" className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-bold text-slate-700 sm:px-5 sm:text-base transition hover:border-slate-400 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800">บันทึกฉบับร่าง</button>
+                <button type="submit" name="publication_status" value="published" className="rounded-xl bg-indigo-600 px-4 py-3 text-sm font-bold text-white sm:px-6 sm:text-base shadow-lg shadow-indigo-600/20 transition hover:-translate-y-0.5 hover:bg-indigo-500">{submitLabel}</button>
             </div>
         </form>
     )

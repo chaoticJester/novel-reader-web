@@ -115,7 +115,7 @@ export default function TableOfContentsShelf({
           onClick={() => setIsOpen(false)} // กดพื้นที่ว่างเพื่อปิด
         >
           <div
-            className={`z-50 flex h-full w-full max-w-sm flex-col bg-white shadow-xl transition-transform duration-300 ease-out dark:bg-black md:w-1/2 lg:w-2/5 xl:w-1/3 ${
+            className={`z-50 flex h-full w-[88vw] max-w-sm flex-col bg-white shadow-xl transition-transform duration-300 ease-out dark:bg-black md:w-1/2 lg:w-2/5 xl:w-1/3 ${
               isVisible ? 'translate-x-0' : 'translate-x-full'
             }`}
             onClick={(e) => e.stopPropagation()} // ป้องกันการกดทะลุไปโดนฉากหลัง
@@ -142,7 +142,7 @@ export default function TableOfContentsShelf({
                       ref={isCurrent ? currentItemRef : undefined}
                       href={`/novel/${novelId}/chapter/${ch.id}`}
                       onClick={() => setIsOpen(false)} // กดเลือกตอนแล้วปิดกล่อง
-                      className={`vertical-align: middle min-w-0 items-baseline gap-2 rounded-lg border p-4 transition-colors ${
+                      className={`block min-w-0 rounded-lg border px-4 py-3 transition-colors md:p-4 ${
                         isCurrent
                           ? 'bg-blue-50 border-blue-200 dark:bg-blue-900/20 dark:border-blue-800'
                           : 'bg-white border-gray-100 hover:border-blue-300 dark:bg-slate-800 dark:border-slate-700'

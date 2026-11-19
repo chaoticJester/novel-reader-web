@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useReaderSettings } from './ReaderSettingsProvider'
 
 interface Font {
@@ -91,16 +92,18 @@ export default function ReaderSettings({
                 {showLabel && <span className="ml-2 hidden md:inline">ตั้งค่า</span>}
             </button>
 
-            {isOpen && (
+            {/* portal ไปที่ body: header ของหน้าอ่านมี translate ทำให้ position: fixed ข้างในยึดกับ header แทนหน้าจอ */}
+            {isOpen && createPortal(
                 <div
                     className={presentation === 'top-panel'
-                        ? 'pointer-events-none fixed inset-x-0 top-16 z-40 flex justify-end p-2 sm:top-20 sm:px-4'
+                        // มือถือ: bottom sheet ลอยเหนือแถบล่าง ใกล้นิ้วโป้ง · คอม: แผงมุมขวาบนใต้ header
+                        ? 'pointer-events-none fixed inset-x-0 bottom-[calc(4rem+env(safe-area-inset-bottom))] z-40 flex justify-end p-2 sm:bottom-auto sm:top-20 sm:px-4'
                         : 'fixed inset-0 z-40 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4'}
                     onClick={presentation === 'modal' ? () => setIsOpen(false) : undefined}
                 >
                     <div
                         className={presentation === 'top-panel'
-                            ? 'pointer-events-auto flex max-h-[calc(100vh-5rem)] w-full flex-col rounded-2xl bg-white shadow-xl dark:bg-black sm:w-[26rem]'
+                            ? 'pointer-events-auto flex max-h-[min(65vh,calc(100dvh-9rem))] w-full flex-col rounded-2xl border border-slate-200 bg-white shadow-xl animate-sheet-up dark:border-slate-800 dark:bg-black sm:max-h-[calc(100vh-6rem)] sm:w-[26rem] sm:animate-slide-down'
                             : 'flex max-h-[80vh] w-full flex-col rounded-t-2xl bg-white shadow-xl dark:bg-black sm:max-w-md sm:rounded-2xl'}
                         onClick={(e) => e.stopPropagation()}
                     >
@@ -202,7 +205,8 @@ export default function ReaderSettings({
                             </section>
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </>
     )

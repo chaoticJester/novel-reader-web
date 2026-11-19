@@ -32,7 +32,7 @@ export default function SignupForm() {
     return (
         <form
             action={action}
-            className="space-y-5 rounded-2xl border border-white/10 bg-white/[0.07] p-6 shadow-2xl shadow-black/30 backdrop-blur-xl"
+            className="space-y-5 rounded-2xl border border-white/10 bg-white/[0.07] p-5 sm:p-6 shadow-2xl shadow-black/30 backdrop-blur-xl"
         >
             <div>
                 <label htmlFor="displayName" className={labelClass}>ชื่อที่แสดง</label>

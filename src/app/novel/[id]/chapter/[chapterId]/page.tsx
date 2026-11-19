@@ -110,8 +110,8 @@ export default async function ChapterReadingPage({
                 fonts={FONTS}
             >
                 <main className="min-h-screen transition-colors">
-                    <div className="mb-10 border-b border-[var(--reader-border)] pb-6 text-center">
-                        <h1 className="mb-4 text-2xl font-bold text-[var(--reader-foreground)] md:text-3xl">
+                    <div className="mb-6 border-b border-[var(--reader-border)] pb-5 text-center md:mb-10 md:pb-6">
+                        <h1 className="mb-3 text-xl font-bold leading-snug sm:text-2xl md:mb-4 text-[var(--reader-foreground)] md:text-3xl">
                             ตอนที่ {chapter.chapter_number}: {chapter.title}
                         </h1>
                         <p className="text-sm text-[var(--reader-muted)]">

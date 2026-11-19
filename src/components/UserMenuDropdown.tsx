@@ -3,17 +3,7 @@
 import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 import { logout } from "@/app/login/actions";
-
-type MenuLink = { href: string; label: string };
-
-function getMenuLinks(): MenuLink[] {
-  const links: MenuLink[] = [
-    { href: "/profile", label: "โปรไฟล์" },
-    { href: "/library", label: "ชั้นหนังสือ" },
-  ];
-
-  return links;
-}
+import { USER_MENU_LINKS } from "@/lib/user-menu-links";
 
 export default function UserMenuDropdown({
   displayName,
@@ -23,7 +13,7 @@ export default function UserMenuDropdown({
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const menuId = useId();
-  const links = getMenuLinks();
+  const links = USER_MENU_LINKS;
 
   // ปิดเมื่อคลิกนอกเมนู หรือกด Escape (ฟังเฉพาะตอนเปิดอยู่)
   useEffect(() => {

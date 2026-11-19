@@ -4,11 +4,11 @@ import LoginForm from "./LoginForm";
 
 export default function LoginPage() {
   return (
-    <main className="relative grid min-h-screen place-items-center overflow-hidden bg-black px-5 py-12 text-white">
+    <main className="relative grid min-h-dvh justify-items-center overflow-hidden bg-black px-4 pb-10 pt-6 text-white sm:place-items-center sm:px-5 sm:py-12">
       <div className="relative w-full max-w-md">
         <Link
           href="/"
-          className="mb-8 inline-flex items-center gap-2 text-sm font-semibold text-slate-400 transition hover:text-white"
+          className="mb-6 inline-flex items-center gap-2 text-sm sm:mb-8 font-semibold text-slate-400 transition hover:text-white"
         >
           ← กลับหน้าหลัก
         </Link>
@@ -17,7 +17,7 @@ export default function LoginPage() {
           <p className="mb-3 text-xs font-bold tracking-[0.2em] text-white">
             RAT NOVEL
           </p>
-          <h1 className="text-4xl font-black tracking-tight">เข้าสู่ระบบ</h1>
+          <h1 className="text-3xl font-black tracking-tight sm:text-4xl">เข้าสู่ระบบ</h1>
           <p className="mt-3 leading-7 text-slate-400">
             เข้าสู่ระบบเพื่อคอมเมนต์ และเก็บประวัติการอ่านไว้ทุกเครื่อง
           </p>

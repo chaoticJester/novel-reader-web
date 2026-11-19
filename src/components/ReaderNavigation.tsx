@@ -180,14 +180,14 @@ export default function ReaderNavigation({
             </header>
 
             <div className={`${readerThemeClass} min-h-screen bg-[var(--reader-background)] text-[var(--reader-foreground)] transition-colors`}>
-                <div className="mx-auto max-w-3xl touch-manipulation px-4 pb-24 pt-24 md:px-8 md:pb-28 md:pt-28" onClick={handleReaderClick}>
+                <div className="mx-auto max-w-3xl touch-manipulation px-5 pb-24 pt-20 md:px-8 md:pb-28 md:pt-28" onClick={handleReaderClick}>
                     {children}
                 </div>
             </div>
 
             <footer className={`fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white/95 shadow-sm backdrop-blur transition-all duration-300 dark:border-slate-800 dark:bg-black/95 ${barVisibilityClass}`} style={{ transform: controlsVisible ? undefined : 'translateY(100%)' }}>
-                <div className="mx-auto flex h-16 max-w-5xl items-center gap-3 px-4 pb-[env(safe-area-inset-bottom)] md:px-8">
-                    {previousChapter ? <Link href={`/novel/${novelId}/chapter/${previousChapter.id}`} className="inline-flex h-10 shrink-0 items-center justify-center rounded-lg px-3 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"><span aria-hidden="true">←</span><span className="ml-1 hidden sm:inline">ตอนก่อนหน้า</span></Link> : <button disabled className="inline-flex h-10 shrink-0 items-center justify-center rounded-lg px-3 text-sm font-medium text-slate-400 dark:text-slate-600"><span aria-hidden="true">←</span><span className="ml-1 hidden sm:inline">ตอนก่อนหน้า</span></button>}
+                <div className="mx-auto box-content flex h-16 max-w-5xl items-center gap-3 px-4 pb-[env(safe-area-inset-bottom)] md:px-8">
+                    {previousChapter ? <Link href={`/novel/${novelId}/chapter/${previousChapter.id}`} className="inline-flex h-11 min-w-11 shrink-0 items-center justify-center rounded-lg px-3 text-sm font-medium md:h-10 text-slate-700 transition-colors hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"><span aria-hidden="true">←</span><span className="ml-1 hidden sm:inline">ตอนก่อนหน้า</span></Link> : <button disabled className="inline-flex h-11 min-w-11 shrink-0 items-center justify-center rounded-lg px-3 text-sm font-medium md:h-10 text-slate-400 dark:text-slate-600"><span aria-hidden="true">←</span><span className="ml-1 hidden sm:inline">ตอนก่อนหน้า</span></button>}
 
                     <div className="flex min-w-0 flex-1 items-center gap-2">
                         <div className="h-2 min-w-0 flex-1 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700" role="progressbar" aria-label="ความคืบหน้าการอ่าน" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.floor(progress * 100)}>
@@ -198,7 +198,7 @@ export default function ReaderNavigation({
                         </span>
                     </div>
 
-                    {nextChapter ? <Link href={`/novel/${novelId}/chapter/${nextChapter.id}`} className="inline-flex h-10 shrink-0 items-center justify-center rounded-lg bg-blue-500 px-3 text-sm font-medium text-white transition-colors hover:bg-blue-600"><span className="mr-1 hidden sm:inline">ตอนถัดไป</span><span aria-hidden="true">→</span></Link> : <button disabled className="inline-flex h-10 shrink-0 items-center justify-center rounded-lg bg-slate-200 px-3 text-sm font-medium text-slate-400 dark:bg-slate-800 dark:text-slate-600"><span className="mr-1 hidden sm:inline">ตอนถัดไป</span><span aria-hidden="true">→</span></button>}
+                    {nextChapter ? <Link href={`/novel/${novelId}/chapter/${nextChapter.id}`} className="inline-flex h-11 min-w-11 shrink-0 items-center justify-center rounded-lg bg-blue-500 px-3 text-sm font-medium text-white transition-colors hover:bg-blue-600 md:h-10"><span className="mr-1 hidden sm:inline">ตอนถัดไป</span><span aria-hidden="true">→</span></Link> : <button disabled className="inline-flex h-11 min-w-11 shrink-0 items-center justify-center rounded-lg bg-slate-200 px-3 text-sm font-medium text-slate-400 md:h-10 dark:bg-slate-800 dark:text-slate-600"><span className="mr-1 hidden sm:inline">ตอนถัดไป</span><span aria-hidden="true">→</span></button>}
                 </div>
             </footer>
         </div>

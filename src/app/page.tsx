@@ -66,72 +66,73 @@ export default async function Home() {
     }
 
 
-  return (
-      <>
-        <Navbar items={menuItems}></Navbar>
-        <div className="container mx-auto p-8">
-            <div className="mb-8">
-                <h1 className="text-3xl font-bold">นิยายแปลอัปเดตล่าสุด</h1>
-            </div>
+    return (
+        <>
+            <Navbar items={menuItems}></Navbar>
+            <main className="container mx-auto px-3 py-5 sm:px-6 sm:py-8 lg:px-8">
+                <div className="mb-4 px-1 sm:mb-8 sm:px-0">
+                    <h1 className="text-2xl font-bold sm:text-3xl">นิยายแปลอัปเดตล่าสุด</h1>
+                </div>
 
-            {/* รายการนิยาย: ปกด้านซ้าย + 5 ตอนล่าสุดด้านขวา */}
-            <div className="flex flex-col gap-6">
-                {novels?.map((novel) => (
-                    <div
-                        key={novel.id}
-                        className="flex gap-4 sm:gap-6 p-4 bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm hover:shadow-md dark:shadow-black/20 transition-shadow"
-                    >
-                        {/* หน้าปก (ซ้าย) */}
-                        <Link
-                            href={`/novel/${novel.id}`}
-                            className="shrink-0 w-24 sm:w-32 group"
-                        >
-                            <div className="relative aspect-3/4 bg-slate-200 dark:bg-slate-700 rounded-lg overflow-hidden shadow-sm group-hover:shadow-md transition-shadow">
-                                {novel.cover_image_url && (
-                                    <img
-                                        src={novel.cover_image_url}
-                                        alt={novel.title}
-                                        className="w-full h-full object-cover"
-                                    />
-                                )}
-                                {/* สถานะเรื่อง: มุมซ้ายบนของปก */}
-                            </div>
-                        </Link>
+                {/* มือถือ: รายการแบบกะทัดรัด 1 คอลัมน์ · คอม (lg): กริด 2 คอลัมน์ */}
+                <div className="grid grid-cols-1 gap-3 sm:gap-5 lg:grid-cols-2 lg:gap-6">
+                    {novels?.map((novel) => {
+                        const statusLabel = getNovelStatusLabel(novel.status)
+                        return (
+                            <article
+                                key={novel.id}
+                                className="flex gap-3 p-3 sm:gap-5 sm:p-4 bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-xl shadow-sm hover:shadow-md dark:shadow-black/20 transition-shadow"
+                            >
+                                {/* หน้าปก (ซ้าย) */}
+                                <Link
+                                    href={`/novel/${novel.id}`}
+                                    className="shrink-0 w-20 sm:w-28 lg:w-32 group"
+                                >
+                                    <div className="relative aspect-3/4 bg-slate-200 dark:bg-slate-700 rounded-lg overflow-hidden shadow-sm group-hover:shadow-md transition-shadow">
+                                        {novel.cover_image_url && (
+                                            <img
+                                                src={novel.cover_image_url}
+                                                alt={novel.title}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        )}
+                                    </div>
+                                </Link>
 
-                        {/* ข้อมูล + 5 ตอนล่าสุด (ขวา) */}
-                        <div className="flex-1 min-w-0">
-                            <Link href={`/novel/${novel.id}`} className="group">
-                                <h2 className="font-semibold text-lg line-clamp-1 text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                                    {novel.title}
-                                </h2>
-                            </Link>
-                            <p className="text-sm text-gray-500 dark:text-slate-400 mb-1">
-                                {novel.author_name || 'ไม่ระบุผู้แต่ง'}
-                            </p>
-                            {getNovelStatusLabel(novel.status) && (
-                                <p className="text-sm text-gray-500 dark:text-slate-500 mb-3">
-                                    สถานะ: {getNovelStatusLabel(novel.status)}
-                                </p>
-                            )}
-                            {novel.latest_chapters[0] && (
-                                <p className="text-xs text-gray-400 dark:text-slate-500 -mt-2 mb-3">
-                                    อัปเดตล่าสุด <RelativeTime iso={novel.latest_chapters[0].created_at} />
-                                </p>
-                            )}
-                            {novel.latest_chapters.length > 0 ? (
-                                <RecentChapters novelId={novel.id} chapters={novel.latest_chapters} />
-                            ) : (
-                                <p className="text-sm text-gray-400 dark:text-slate-500">ยังไม่มีตอน</p>
-                            )}
-                        </div>
-                    </div>
-                ))}
-            </div>
+                                {/* ข้อมูล + ตอนล่าสุด (ขวา) — มือถือแสดง 3 ตอน, คอมแสดง 5 ตอน */}
+                                <div className="flex-1 min-w-0">
+                                    <Link href={`/novel/${novel.id}`} className="group">
+                                        <h2 className="font-semibold text-base leading-snug line-clamp-2 sm:text-lg sm:line-clamp-1 text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                                            {novel.title}
+                                        </h2>
+                                    </Link>
+                                    <p className="mt-0.5 text-xs sm:text-sm text-gray-500 dark:text-slate-400 line-clamp-1">
+                                        {novel.author_name || 'ไม่ระบุผู้แต่ง'}
+                                    </p>
+                                    {(statusLabel || novel.latest_chapters[0]) && (
+                                        <p className="mt-1 mb-2 sm:mb-3 flex flex-wrap gap-x-2 text-xs text-gray-400 dark:text-slate-500">
+                                            {statusLabel && <span>สถานะ: {statusLabel}</span>}
+                                            {statusLabel && novel.latest_chapters[0] && <span aria-hidden="true">·</span>}
+                                            {novel.latest_chapters[0] && (
+                                                <span>อัปเดตล่าสุด <RelativeTime iso={novel.latest_chapters[0].created_at} /></span>
+                                            )}
+                                        </p>
+                                    )}
+                                    {novel.latest_chapters.length > 0 ? (
+                                        <RecentChapters novelId={novel.id} chapters={novel.latest_chapters} />
+                                    ) : (
+                                        <p className="text-sm text-gray-400 dark:text-slate-500">ยังไม่มีตอน</p>
+                                    )}
+                                </div>
+                            </article>
+                        )
+                    })}
+                </div>
 
-            {novels?.length === 0 && (
-                <p className="text-gray-500 text-center mt-10">ยังไม่มีข้อมูลนิยายในระบบ</p>
-            )}
-        </div>
-      </>
+                {novels?.length === 0 && (
+                    <p className="text-gray-500 text-center mt-10">ยังไม่มีข้อมูลนิยายในระบบ</p>
+                )}
+            </main>
+        </>
     );
 }

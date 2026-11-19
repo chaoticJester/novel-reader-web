@@ -68,7 +68,7 @@ export default function ChapterList({
                 </div>
 
                 {/* Toolbar */}
-                <div className="mt-5 flex flex-col gap-3 rounded-2xl border border-slate-200/80 bg-slate-50/70 p-3 sm:flex-row sm:items-center dark:border-white/10 dark:bg-white/[0.03]">
+                <div className="mt-5 flex gap-2 rounded-2xl sm:gap-3 border border-slate-200/80 bg-slate-50/70 p-3 sm:flex-row sm:items-center dark:border-white/10 dark:bg-white/[0.03]">
                     <div className="relative min-w-0 flex-1">
                         <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -91,7 +91,7 @@ export default function ChapterList({
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             placeholder="ค้นหาด้วยเลขตอนหรือชื่อตอน..."
-                            className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 dark:border-white/10 dark:bg-slate-900 dark:text-slate-100"
+                            className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-10 pr-4 text-base text-slate-900 sm:text-sm outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:ring-4 focus:ring-indigo-500/10 dark:border-white/10 dark:bg-slate-900 dark:text-slate-100"
                         />
                     </div>
 
@@ -129,10 +129,10 @@ export default function ChapterList({
                 {filteredAndSorted.map((chapter) => (
                     <div
                         key={chapter.id}
-                        className="group flex flex-col gap-3 border-b border-slate-200/80 px-5 py-4 transition hover:bg-slate-50/70 last:border-0 sm:flex-row sm:items-center sm:justify-between dark:border-white/10 dark:hover:bg-white/[0.03]"
+                        className="group flex items-center gap-3 border-b border-slate-200/80 px-3 py-3 sm:px-5 sm:py-4 transition hover:bg-slate-50/70 last:border-0 sm:flex-row sm:items-center sm:justify-between dark:border-white/10 dark:hover:bg-white/[0.03]"
                     >
-                        <div className="flex min-w-0 items-center gap-4">
-                            <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-slate-100 text-sm font-black text-slate-600 transition group-hover:bg-indigo-50 group-hover:text-indigo-600 dark:bg-white/5 dark:text-slate-300 dark:group-hover:bg-indigo-400/10 dark:group-hover:text-indigo-300">
+                        <div className="flex min-w-0 flex-1 items-center gap-3 sm:gap-4">
+                            <span className="grid size-10 shrink-0 sm:size-11 place-items-center rounded-xl bg-slate-100 text-sm font-black text-slate-600 transition group-hover:bg-indigo-50 group-hover:text-indigo-600 dark:bg-white/5 dark:text-slate-300 dark:group-hover:bg-indigo-400/10 dark:group-hover:text-indigo-300">
                                 {chapter.chapter_number}
                             </span>
 
@@ -147,7 +147,7 @@ export default function ChapterList({
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-1 self-end sm:self-auto">
+                        <div className="flex shrink-0 items-center gap-1">
                             <Link
                                 href={`/author/novels/${novelId}/chapters/${chapter.id}/edit`}
                                 className="rounded-lg px-3 py-2 text-sm font-bold text-indigo-600 transition hover:bg-indigo-50 dark:text-indigo-300 dark:hover:bg-indigo-400/10"
